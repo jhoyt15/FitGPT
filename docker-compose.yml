@@ -21,6 +21,9 @@ services:
       - 5001:5000
     environment:
       - FLASK_ENV=development
+    volumes:
+      - .:/app    # Add this if it's not already there
+      - /app/venv  # This prevents the container's venv from syncing to local
     depends_on:
       - elasticsearch
     networks:

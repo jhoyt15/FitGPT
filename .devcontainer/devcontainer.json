@@ -1,0 +1,14 @@
+{
+    "name": "Flask Application",
+    "dockerComposeFile": ["../docker-compose.yml"],
+    "service": "flask-app",
+    "workspaceFolder": "/app",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance"
+            ]
+        }
+    }
+}
