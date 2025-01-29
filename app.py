@@ -8,6 +8,10 @@ ELASTICSEARCH_USER = os.getenv("ELASTICSEARCH_USER")
 ELASTICSEARCH_PASSWORD = os.getenv("ELASTICSEARCH_PASSWORD")
 ELASTICSEARCH_API_KEY = os.getenv("ELASTICSEARCH_API_KEY")
 
+# Initialize Elasticsearch client
+es = Elasticsearch("http://elasticsearch:9200")
+
+# Initialize Flask app
 app = Flask(__name__)
 
 @app.route("/")
@@ -32,3 +36,7 @@ def check():
         }
     )
     print(result['hits']['hits'])
+    
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+    
