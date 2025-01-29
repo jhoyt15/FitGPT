@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import os
 from elasticsearch import Elasticsearch
 from data.dataLoader import make_index
@@ -20,7 +20,10 @@ def hello_world():
 @app.route("/query",methods=['POST'])
 def query_es():
     if request.method == 'POST':
-        query = request.form['query']
+        data = request.get_json()
+        if not data or "query" not in data:
+            return jsonify({"Error":"Invalid Request"}),400
+        query = data["query"]
         result = es.search(index='workouts',query={
             'match': {
                 'Title': {
@@ -28,7 +31,7 @@ def query_es():
                 }
             }
         })
-        return {'response':result['hit']['hit']}
+        return jsonify({'response':result['hits']['hits']})
 
 @app.cli.command()
 def reindex():
