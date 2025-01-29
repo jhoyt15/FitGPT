@@ -14,6 +14,10 @@ app = Flask(__name__)
 def hello_world():
     return "<p>Hello, World!</p>"
 
+@app.route("/query")
+def query_es():
+    pass
+
 @app.cli.command()
 def reindex():
     es = Elasticsearch(ELASTICSEARCH_URL,basic_auth=[ELASTICSEARCH_USER,ELASTICSEARCH_PASSWORD],api_key=ELASTICSEARCH_API_KEY,ca_certs='cert.crt')
