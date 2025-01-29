@@ -2,9 +2,13 @@ import { useState } from 'react'
 
 const Content = () => {
     const [response, setResponse] = useState('')
+    const [query,setQuery] = useState('')
 
-    const queryES = () => {
+    const queryES = (query) => {
         setResponse('Hello World')
+        fetch('/query',{method:"POST",body:JSON.stringify({query:query})})
+            .then(response => response.json())
+            .then(data => setResponse(data))
     }
 
     return (
@@ -12,7 +16,7 @@ const Content = () => {
             <p>
                 Hello, world!
             </p>
-            <input type = "search" onKeyDown = {(e) => {
+            <input type = "search" value={query} onChange={setQuery} onKeyDown = {(e) => {
                 if(e.key === "Enter")
                     queryES()
             }}>
