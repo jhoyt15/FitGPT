@@ -2,3 +2,6 @@ Flask==2.3.2
 elasticsearch==8.17.1
 langchain
 langchain_elasticsearch
+langchain_huggingface
+python-dotenv
+flask-cors
