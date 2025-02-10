@@ -1,10 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response, Response
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 from elasticsearch import Elasticsearch
 from data.dataLoader import make_index, make_rag_index, get_embedding_model
 from langchain_elasticsearch import ElasticsearchStore
+from src.chat import prompt_llm
 
 load_dotenv()
 ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL","http://localhost:9200")
@@ -65,3 +66,11 @@ def rag_reindex():
 def rag_check():
     docs = doc_store.as_retriever().invoke("Chest")
     print(docs)
+
+@app.route("/question",methods=['POST'])
+def ask_question():
+    data = request.get_json()
+    if not data or "question" not in data:
+        return jsonify({"Error":"question field not found"}), 400
+    question = data["question"]
+    return Response(prompt_llm(question),mimetype='text/event-stream')

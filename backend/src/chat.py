@@ -1,6 +1,6 @@
 import os
 import sys
-import random
+from flask import stream_with_context
 from dotenv import load_dotenv
 from elasticsearch import Elasticsearch
 from langchain_elasticsearch import ElasticsearchStore
@@ -28,6 +28,7 @@ doc_store = ElasticsearchStore(es_connection=es,index_name='workouts_rag',embedd
 
 llm = ChatMistralAI(model_name="mistral-small-latest",api_key=MISTRAL_API_KEY)
 
+@stream_with_context
 def prompt_llm(question:str):
     '''Prompts the LLM and Elasticsearch with the users question and returns a response'''
     documents = []
@@ -44,8 +45,13 @@ def prompt_llm(question:str):
 
     full_rag_question = template.render(question=question,documents=documents,workout_split=workout_split)
 
-    answer = llm.invoke(full_rag_question)
-    print(answer.content)
+    #answer = llm.invoke(full_rag_question)
+    #print(answer.content)
+
+    answer = ""
+    for answer_chunk in llm.stream(full_rag_question):
+        yield f'data: {answer_chunk.content}\n\n'
+        answer += answer_chunk
 
 
 def get_workout_split(question:str)->dict:
