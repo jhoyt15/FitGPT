@@ -2,7 +2,7 @@ import json
 import csv
 import os
 from dotenv import load_dotenv
-from elasticsearch import Elasticsearch, NotFoundError
+from elasticsearch import Elasticsearch
 from langchain.docstore.document import Document
 from langchain_elasticsearch import ElasticsearchStore
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -10,12 +10,12 @@ from langchain_huggingface import HuggingFaceEmbeddings
 load_dotenv()
 
 FILE = os.getenv("FILE",'data/exerciseData.json')
-ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL")
-ELASTICSEARCH_USER = os.getenv("ELASTICSEARCH_USER")
-ELASTICSEARCH_PASSWORD = os.getenv("ELASTICSEARCH_PASSWORD")
-ELASTICSEARCH_API_KEY = os.getenv("ELASTICSEARCH_API")
+ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL","http://localhost:9200")
+ELASTICSEARCH_USER = os.getenv("ELASTICSEARCH_USER","")
+ELASTICSEARCH_PASSWORD = os.getenv("ELASTICSEARCH_PASSWORD","")
+ELASTICSEARCH_API_KEY = os.getenv("ELASTICSEARCH_API","")
 
-es_connection = Elasticsearch(ELASTICSEARCH_URL,basic_auth=[ELASTICSEARCH_USER,ELASTICSEARCH_PASSWORD])
+es_connection = Elasticsearch(ELASTICSEARCH_URL)#,basic_auth=[ELASTICSEARCH_USER,ELASTICSEARCH_PASSWORD])
 
 
 def make_json(data_path:str,json_path:str)->None:
@@ -26,7 +26,7 @@ def make_json(data_path:str,json_path:str)->None:
     # Open a csv reader called DictReader
     with open(data_path, encoding='utf-8') as csvf:
         csvReader = csv.DictReader(csvf)
-        data = []
+        data = []  
         for row in csvReader:
             row['Title'] = row['Title'] + ' ' + row['Equipment'] + ' ' + row['Level'] + ' ' + row['BodyPart'] + ' ' +row['Type']
             data.append(row)
@@ -52,7 +52,7 @@ def make_index()->None:
     es_connection.bulk(operations=operations)
 
 
-def get_embedding_model()->HuggingFaceEmbeddings:
+def get_embedding_model():
     '''Initalizes the HuggingFace embedding model'''
     embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
     return embedding
