@@ -1,0 +1,19 @@
+Use the following documents and workouts to generate your answer to the question.
+
+----
+
+{% for document in documents -%}
+---
+Name: {{document.page_content}}
+Description: {{document.metadata.Desc}}
+---
+
+{% endfor -%}
+
+---
+{% if workout_split -%}
+Split: {{workout_split}}
+{% endif -%}
+---
+
+Question: {{question}}

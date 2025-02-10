@@ -3,18 +3,20 @@ from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 from elasticsearch import Elasticsearch
-from data.dataLoader import make_index, make_rag_index
+from data.dataLoader import make_index, make_rag_index, get_embedding_model
+from langchain_elasticsearch import ElasticsearchStore
 
 load_dotenv()
-ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL")
-ELASTICSEARCH_USER = os.getenv("ELASTICSEARCH_USER")
-ELASTICSEARCH_PASSWORD = os.getenv("ELASTICSEARCH_PASSWORD")
-ELASTICSEARCH_API_KEY = os.getenv("ELASTICSEARCH_API_KEY")
+ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL","http://localhost:9200")
+ELASTICSEARCH_USER = os.getenv("ELASTICSEARCH_USER","")
+ELASTICSEARCH_PASSWORD = os.getenv("ELASTICSEARCH_PASSWORD","")
+ELASTICSEARCH_API_KEY = os.getenv("ELASTICSEARCH_API_KEY","")
 
 
 app = Flask(__name__)
 CORS(app)
-es = Elasticsearch(ELASTICSEARCH_URL,basic_auth=[ELASTICSEARCH_USER,ELASTICSEARCH_PASSWORD])
+es = Elasticsearch(ELASTICSEARCH_URL)#,basic_auth=[ELASTICSEARCH_USER,ELASTICSEARCH_PASSWORD])
+doc_store = ElasticsearchStore(es_connection=es,index_name='workouts_rag',embedding=get_embedding_model())
 
 
 @app.route("/")
@@ -55,6 +57,11 @@ def check():
     print(result['hits']['hits'])
     print(result)
 
-@app.cli.command()
-def rag():
+@app.cli.command("rag-reindex")
+def rag_reindex():
     make_rag_index()
+
+@app.cli.command("rag-check")
+def rag_check():
+    docs = doc_store.as_retriever().invoke("Chest")
+    print(docs)
