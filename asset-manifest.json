@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/FitGPT/static/css/main.5a341aca.css",
+    "main.js": "/FitGPT/static/js/main.4ccb1251.js",
+    "index.html": "/FitGPT/index.html",
+    "main.5a341aca.css.map": "/FitGPT/static/css/main.5a341aca.css.map",
+    "main.4ccb1251.js.map": "/FitGPT/static/js/main.4ccb1251.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.5a341aca.css",
+    "static/js/main.4ccb1251.js"
+  ]
+}
