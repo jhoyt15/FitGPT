@@ -16,6 +16,7 @@ ELASTICSEARCH_API_KEY = os.getenv("ELASTICSEARCH_API_KEY","")
 
 app = Flask(__name__)
 CORS(app)
+app.app_context()
 es = Elasticsearch(ELASTICSEARCH_URL)#,basic_auth=[ELASTICSEARCH_USER,ELASTICSEARCH_PASSWORD])
 doc_store = ElasticsearchStore(es_connection=es,index_name='workouts_rag',embedding=get_embedding_model())
 
