@@ -5,3 +5,4 @@ langchain_elasticsearch
 langchain_huggingface
 python-dotenv
 flask-cors
+sentence-transformers
