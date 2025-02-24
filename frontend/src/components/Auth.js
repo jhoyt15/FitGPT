@@ -6,7 +6,7 @@ const Auth = ({ onLogin, onLogout, user }) => {
     const handleSuccess = async (credentialResponse) => {
         console.log('Google login successful, credential response:', credentialResponse);
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/google`, {
+            const response = await fetch('http://localhost:5001/auth/google', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -20,9 +20,9 @@ const Auth = ({ onLogin, onLogout, user }) => {
             const data = await response.json();
             console.log('Backend response:', data);
             
-            if (data.status === 'success') {
+            if (data.status === 'success' && data.user) {
                 console.log('Login successful, user data:', data.user);
-                onLogin(data.user);
+                await onLogin(data.user);
             } else {
                 console.error('Login failed:', data);
             }

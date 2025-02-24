@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import Auth from './components/Auth'
 import WorkoutHistory from './components/WorkoutHistory'
@@ -27,6 +27,7 @@ const WorkoutCard = ({ workout }) => {
 };
 
 const Content = () => {
+    console.log('API URL:', process.env.REACT_APP_API_URL);
     const [response, handleResponse] = useState([])
     const [user, setUser] = useState(null)
     const [userInput, setUserInput] = useState({
@@ -40,6 +41,10 @@ const Content = () => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
 
+    useEffect(() => {
+        console.log('User state changed:', user);
+    }, [user]);
+
     const handleInputChange = (e) => {
         const { name, value } = e.target
         setUserInput(prev => ({
@@ -47,6 +52,11 @@ const Content = () => {
             [name]: value
         }))
     }
+
+    const handleUserLogin = (userData) => {
+        console.log('Setting user state:', userData);
+        setUser(userData);
+    };
 
     const generateWorkout = () => {
         setLoading(true)
@@ -89,7 +99,7 @@ const Content = () => {
                             <h1>Welcome to FitGPT</h1>
                             <p>Sign in to create and track your personalized workout plans</p>
                             <Auth 
-                                onLogin={setUser}
+                                onLogin={handleUserLogin}
                                 onLogout={() => setUser(null)}
                                 user={user}
                             />
