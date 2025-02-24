@@ -67,7 +67,7 @@ const Content = () => {
             ${userInput.timeAvailable} minutes available for ${userInput.daysPerWeek} days per week. 
             Additional preferences: ${userInput.preferences}`
 
-        fetch(`${process.env.REACT_APP_API_URL}/query`, {
+        fetch('http://localhost:5001/query', {
             method: 'POST',
             headers: { 
                 "Content-Type": "application/json"
