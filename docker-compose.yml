@@ -18,7 +18,7 @@ services:
     build: ./backend
     container_name: flask-app
     ports:
-      - 5000:5000
+      - 5001:5000
     environment:
       - FLASK_ENV=development
       - ELASTICSEARCH_URL=http://elasticsearch:9200
