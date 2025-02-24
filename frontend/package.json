@@ -1,9 +1,10 @@
 {
-  "name": "frontend",
+  "name": "fitgpt",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://flask-app:5000",
+  "proxy": "http://fitgpt-backend:5001",
   "dependencies": {
+    "@react-oauth/google": "^0.12.1",
     "cra-template": "1.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -11,7 +12,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
