@@ -18,7 +18,7 @@ ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL","http://localhost:9200")
 ELASTICSEARCH_USER = os.getenv("ELASTICSEARCH_USER","")
 ELASTICSEARCH_PASSWORD = os.getenv("ELASTICSEARCH_PASSWORD","")
 ELASTICSEARCH_API_KEY = os.getenv("ELASTICSEARCH_API_KEY","")
-MISTRAL_API_KEY = os.getenv("MISTRAL_API")
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 
 if not MISTRAL_API_KEY:
     sys.exit("Please put the Mistral API key in the .env file!")
@@ -38,19 +38,20 @@ def prompt_llm(question:str):
             for muscle in muscle_groups:
                 documents.extend(doc_store.similarity_search(muscle,k=2))
         
-    with open("backend/src/templates/rag_prompt.txt") as file:
+    with open("./src/templates/rag_prompt.txt") as file:
         template = file.read()
     template = Template(template)
 
     full_rag_question = template.render(question=question,documents=documents,workout_split=workout_split)
 
-    #answer = llm.invoke(full_rag_question)
+    answer = llm.invoke(full_rag_question)
     #print(answer.content)
+    return answer.content
 
-    answer = ""
-    for answer_chunk in llm.stream(full_rag_question):
-        yield f'response: {answer_chunk.content}\n\n'
-        answer += answer_chunk
+    #answer = ""
+    #for answer_chunk in llm.stream(full_rag_question):
+        #yield f'response: {answer_chunk.content}\n\n'
+        #answer += answer_chunk
 
 
 def get_workout_split(question:str)->dict:
@@ -115,4 +116,4 @@ def get_workout_split(question:str)->dict:
     else:
         return None
     
-prompt_llm("Give me an workout plan using the push pull legs split")
+#prompt_llm("Give me an workout plan using the push pull legs split")

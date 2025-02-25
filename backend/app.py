@@ -8,6 +8,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_elasticsearch import ElasticsearchStore
 from langchain_huggingface import HuggingFaceEmbeddings
 import click
+from src.chat import prompt_llm
 
 app = Flask(__name__)
 CORS(app)
@@ -102,6 +103,20 @@ def check():
 @app.cli.command()
 def rag():
     make_rag_index()
+
+@app.route('/prompt-llm',methods=["POST"])
+def ask_question():
+    if request.method != "POST":
+        return jsonify({"error":"Method must be post"}), 400
+    data = request.get_json()
+    if not data or "query" not in data:
+        return jsonify({"error":"Invalid request"}), 400
+    try:
+        query = data["query"]
+        answer = prompt_llm(query)
+        return jsonify({"response":answer}), 200
+    except Exception as e:
+        return jsonify({"error":e}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
