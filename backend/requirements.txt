@@ -6,3 +6,7 @@ langchain_huggingface
 python-dotenv
 flask-cors
 sentence-transformers
+langchain_mistralai
+fuzzywuzzy
+jinja2
+python-Levenshtein

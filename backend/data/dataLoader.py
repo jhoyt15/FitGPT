@@ -15,7 +15,7 @@ ELASTICSEARCH_USER = os.getenv("ELASTICSEARCH_USER")
 ELASTICSEARCH_PASSWORD = os.getenv("ELASTICSEARCH_PASSWORD")
 ELASTICSEARCH_API_KEY = os.getenv("ELASTICSEARCH_API")
 
-es_connection = Elasticsearch("http://elasticsearch:9200")
+es_connection = Elasticsearch("http://elasticsearch:9200",verify_certs=False)
 
 
 def make_json(data_path:str,json_path:str)->None:
