@@ -1,45 +1,85 @@
 from flask import Flask, request, jsonify, make_response, Response
 from flask_cors import CORS
 import os
-from dotenv import load_dotenv
 from elasticsearch import Elasticsearch
-from data.dataLoader import make_index, make_rag_index, get_embedding_model
+from data.dataLoader import make_index, make_rag_index
+from langchain.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
 from langchain_elasticsearch import ElasticsearchStore
-from src.chat import prompt_llm
-
-load_dotenv()
-ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL","http://localhost:9200")
-ELASTICSEARCH_USER = os.getenv("ELASTICSEARCH_USER","")
-ELASTICSEARCH_PASSWORD = os.getenv("ELASTICSEARCH_PASSWORD","")
-ELASTICSEARCH_API_KEY = os.getenv("ELASTICSEARCH_API_KEY","")
-
+from langchain_huggingface import HuggingFaceEmbeddings
+import click
 
 app = Flask(__name__)
 CORS(app)
-app.app_context()
-es = Elasticsearch(ELASTICSEARCH_URL)#,basic_auth=[ELASTICSEARCH_USER,ELASTICSEARCH_PASSWORD])
-doc_store = ElasticsearchStore(es_connection=es,index_name='workouts_rag',embedding=get_embedding_model())
+es = Elasticsearch("http://elasticsearch:9200")
 
+# Initialize the embedding model and vector store
+embedding_model = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-mpnet-base-v2"
+)
+vector_store = ElasticsearchStore(
+    es_connection=es,
+    index_name="workouts_rag",
+    embedding=embedding_model
+)
 
 @app.route("/")
 def hello_world():
     return "<p>Hello, World!</p>"
 
-@app.route("/query",methods=['POST'])
+@app.route("/query", methods=['POST'])
 def query_es():
     if request.method == 'POST':
         data = request.get_json()
         if not data or "query" not in data:
-            return jsonify({"Error":"Invalid Request"}),400
-        query = data["query"]
-        result = es.search(index='workouts',query={
-            'match': {
-                'Title': {
-                    'query': query
+            return jsonify({"Error":"Invalid Request"}), 400
+        
+        user_query = data["query"]
+        print(f"Received query: {user_query}")  # Debug print
+        
+        try:
+            # Search for relevant workouts based on user input
+            results = vector_store.similarity_search(
+                user_query,
+                k=5  # Number of relevant workouts to retrieve
+            )
+            print(f"Found {len(results)} results")  # Debug print
+            
+            # Format the results
+            formatted_results = []
+            for doc in results:
+                workout = {
+                    "_source": {
+                        "Title": doc.page_content,
+                        "Description": doc.metadata.get("Desc", ""),
+                        "Type": doc.metadata.get("Type", ""),
+                        "Equipment": doc.metadata.get("Equipment", ""),
+                        "Level": doc.metadata.get("Level", ""),
+                        "BodyPart": doc.metadata.get("BodyPart", "")
+                    }
                 }
-            }
-        })
-        return jsonify({'response':result['hits']['hits']})
+                formatted_results.append(workout)
+            
+            print(f"Formatted {len(formatted_results)} results")  # Debug print
+            return jsonify({'response': formatted_results})
+        except Exception as e:
+            print(f"Error in query_es: {str(e)}")  # Debug print
+            return jsonify({"Error": str(e)}), 500
+
+@app.cli.command("init-db")
+@click.command('init-db')
+def init_db():
+    """Initialize the database with workout data and create RAG index"""
+    print("Starting database initialization...")
+    try:
+        make_index()  # Create regular index
+        print("Basic index created")
+        make_rag_index()  # Create RAG-enabled index
+        print("RAG index created")
+        print("Database initialized successfully")
+    except Exception as e:
+        print(f"Error initializing database: {str(e)}")
+        raise e
 
 @app.cli.command()
 def reindex():
@@ -59,19 +99,9 @@ def check():
     print(result['hits']['hits'])
     print(result)
 
-@app.cli.command("rag-reindex")
-def rag_reindex():
+@app.cli.command()
+def rag():
     make_rag_index()
 
-@app.cli.command("rag-check")
-def rag_check():
-    docs = doc_store.as_retriever().invoke("Chest")
-    print(docs)
-
-@app.route("/question",methods=['POST'])
-def ask_question():
-    data = request.get_json()
-    if not data or "question" not in data:
-        return jsonify({"Error":"question field not found"}), 400
-    question = data["question"]
-    return Response(prompt_llm(question),mimetype='text/event-stream')
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)

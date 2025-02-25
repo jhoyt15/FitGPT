@@ -1,0 +1,205 @@
+body {
+    background: #f5f7fa;
+    margin: 0;
+    min-height: 100vh;
+}
+
+.main-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: 'Inter', sans-serif;
+}
+
+.workout-form {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2.5rem;
+}
+
+.workout-form h2 {
+    color: #1a237e;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 1.8rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.7rem;
+    color: #333;
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #3f51b5;
+    background: white;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(63, 81, 181, 0.1);
+}
+
+.generate-button {
+    background: linear-gradient(45deg, #3f51b5, #5c6bc0);
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.generate-button:hover {
+    background: linear-gradient(45deg, #303f9f, #3f51b5);
+    transform: translateY(-2px);
+}
+
+.workout-plan {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.workout-plan h3 {
+    color: #1a237e;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.workout-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.workout-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    padding: 1.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.workout-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.workout-title {
+    color: #1a237e;
+    margin-bottom: 0.8rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.workout-description {
+    color: #424242;
+    margin-bottom: 1rem;
+    line-height: 1.7;
+    font-size: 1rem;
+}
+
+.workout-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.workout-meta span {
+    background: #e8eaf6;
+    color: #3f51b5;
+    padding: 0.6rem 1.2rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.workout-meta span:hover {
+    background: #c5cae9;
+    transform: translateY(-1px);
+}
+
+.loading-message {
+    text-align: center;
+    padding: 3rem;
+    color: #3f51b5;
+    font-size: 1.2rem;
+    font-weight: 500;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    animation: pulse 2s infinite;
+}
+
+.error-message {
+    background: #ffebee;
+    color: #c62828;
+    padding: 1.2rem;
+    border-radius: 12px;
+    margin: 1rem 0;
+    text-align: center;
+    font-weight: 500;
+    border: 1px solid #ffcdd2;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-container {
+        padding: 1rem;
+    }
+    
+    .workout-form, .workout-plan {
+        padding: 1.5rem;
+    }
+    
+    .workout-meta {
+        gap: 0.5rem;
+    }
+    
+    .workout-meta span {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+} 
