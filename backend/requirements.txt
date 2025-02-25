@@ -5,6 +5,4 @@ langchain_elasticsearch
 langchain_huggingface
 python-dotenv
 flask-cors
-langchain_mistralai
-fuzzywuzzy
-python-levenshtein
+sentence-transformers
