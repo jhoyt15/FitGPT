@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, make_response, Response
+from flask import Flask, request, jsonify, make_response, Response, stream_with_context
 from flask_cors import CORS
 import os
 from elasticsearch import Elasticsearch
@@ -8,6 +8,8 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_elasticsearch import ElasticsearchStore
 from langchain_huggingface import HuggingFaceEmbeddings
 import click
+import time
+import sys
 from src.chat import prompt_llm
 
 app = Flask(__name__)
@@ -104,16 +106,17 @@ def check():
 def rag():
     make_rag_index()
 
-@app.route('/prompt-llm',methods=["POST"])
+@app.route('/chat',methods=["POST"])
 def ask_question():
     if request.method != "POST":
         return jsonify({"error":"Method must be post"}), 400
     data = request.get_json()
-    if not data or "query" not in data:
+    if not data or "query" not in data or "session_id" not in data:
         return jsonify({"error":"Invalid request"}), 400
     try:
         query = data["query"]
-        answer = prompt_llm(query)
+        session_id = data["session_id"]
+        answer = prompt_llm(query,session_id)  
         return jsonify({"response":answer}), 200
     except Exception as e:
         return jsonify({"error":e}), 500
