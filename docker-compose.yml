@@ -1,4 +1,4 @@
-version: '3.8'
+
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.17.1
@@ -37,8 +37,6 @@ services:
     container_name: react-app
     ports:
       - 3000:3000
-    env_file:
-      - ./frontend/.env
     depends_on:
       - flask-app
     networks:

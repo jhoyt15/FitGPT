@@ -8,27 +8,50 @@
     position: sticky;
     top: 0;
     z-index: 1000;
-}
-
-.logo-container {
+  }
+  
+  .logo-container {
     display: flex;
     align-items: center;
-}
-
-.app-header h1 {
+  }
+  
+  .app-header h1 {
     color: #ffffff;
     font-size: 1.8rem;
     margin: 0;
-}
-
-.navigation a {
+  }
+  
+  .navigation {
+    display: flex;
+    gap: 1.5rem; /* Adds space between buttons */
+  }
+  
+  .nav-button {
+    background: none;
+    border: none;
     color: #ffffff;
-    margin-left: 1.5rem;
-    text-decoration: none;
     font-size: 1rem;
-    transition: color 0.3s ease;
-}
-
-.navigation a:hover {
-    color: #ffeb3b;
-} 
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+  }
+  
+  .nav-button:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Light background on hover */
+    color: #ffeb3b; /* Yellow text on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+  }
+  
+  .nav-button:active {
+    transform: translateY(0); /* Reset lift effect when clicked */
+  }
+  
+  /* Optional: Add an active state for the current section */
+  .nav-button.active {
+    background-color: #3f51b5; /* Highlight the active button */
+    color: #ffffff;
+  }
