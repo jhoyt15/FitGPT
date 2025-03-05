@@ -126,5 +126,56 @@ def make_rag_index():
     )
     print('RAG index created successfully')
 
+def new_rag_index():
+    """Create and populate the RAG-enabled index with comprehensive workout data"""
+    embedding = get_embedding_model()
+    print('Initializing embedding model...')
+
+    # Define the metadata keys we want to preserve
+    metadata_keys = [
+        "Equipment",
+        "Variation",
+        "Utility",
+        "Mechanics",
+        "Force",
+        "Preparation",
+        "Execution",
+        "Target_Muscles",
+        "Synergist_Muscles",
+        "Stabilizer_Muscles",
+        "Antagonist_Muscles",
+        "Dynamic_Stabilizer_Muscles",
+        "Main_muscle",
+        "Difficulty (1-5)",
+        "Secondary Muscles",
+        "parent_id"
+    ]
+
+    # Load workout data from JSON file
+    workouts = []
+    with open('data/gym_exercise_dataset.json', 'rt') as file:
+        for document in json.loads(file.read()):
+            # Create a more detailed title that includes key information
+            #enhanced_title = f"{document['Title']} - {document['Type']} workout for {document['Level']} level, targeting {document['BodyPart']} using {document['Equipment']}"
+            
+            workouts.append(
+                Document(
+                    page_content=document['Exercise Name'],
+                    metadata={key: document.get(key) for key in metadata_keys}
+                )
+            )
+    
+    # Delete existing index if it exists
+    es_connection.indices.delete(index='workouts_rag', ignore_unavailable=True)
+
+    # Create new index with the workout documents
+    ElasticsearchStore.from_documents(
+        documents=workouts,
+        es_connection=es_connection,
+        index_name='workouts_rag',
+        embedding=embedding
+    )
+    print('RAG index created successfully')
+
 if __name__ == "__main__":
-    make_rag_index()
+    new_rag_index()

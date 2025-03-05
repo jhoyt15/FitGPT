@@ -10,3 +10,5 @@ langchain_mistralai
 fuzzywuzzy
 jinja2
 python-Levenshtein
+gunicorn
+gevent

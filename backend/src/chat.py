@@ -7,6 +7,7 @@ from langchain_elasticsearch import ElasticsearchStore
 from langchain_mistralai import ChatMistralAI
 from fuzzywuzzy import process
 from jinja2 import Template
+from langchain_elasticsearch import ElasticsearchChatMessageHistory
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(f"{basedir}/../")
@@ -28,8 +29,16 @@ doc_store = ElasticsearchStore(es_connection=es,index_name='workouts_rag',embedd
 
 llm = ChatMistralAI(model_name="mistral-small-latest",api_key=MISTRAL_API_KEY)
 
-def prompt_llm(question:str):
+def prompt_llm(question:str,session_id:int):
     '''Prompts the LLM and Elasticsearch with the users question and returns a response'''
+    #Get chat history
+    chat_history = get_chat_history('workouts_rag',session_id)
+    if(len(chat_history.messages) > 0):
+        with open("./src/templates/condensed_question.txt") as file:
+            condensed_template = file.read()
+        question = Template(condensed_template).render(chat_history) #Condense chat history down to one question to reduce input size
+
+
     documents = []
     workout_split = get_workout_split(question)
     if workout_split:
@@ -45,13 +54,14 @@ def prompt_llm(question:str):
     full_rag_question = template.render(question=question,documents=documents,workout_split=workout_split)
 
     answer = llm.invoke(full_rag_question)
-    #print(answer.content)
+
+    chat_history.add_user_message(question)
+    chat_history.add_ai_message(answer)
+
     return answer.content
 
-    #answer = ""
-    #for answer_chunk in llm.stream(full_rag_question):
-        #yield f'response: {answer_chunk.content}\n\n'
-        #answer += answer_chunk
+def get_chat_history(index_name:str,session_id:int):
+    return ElasticsearchChatMessageHistory(es_connection=es,index=index_name,session_id=session_id)
 
 
 def get_workout_split(question:str)->dict:

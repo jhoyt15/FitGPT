@@ -1,11 +1,15 @@
-Use the following documents and workouts to generate your answer to the question.
+Use the following documents and workouts to generate your answer to the question. Try not to repeat workouts when recommending. Only provide the name of the workout.
+
+Here is the chat history as a reference
+----
+
 
 ----
 
 {% for document in documents -%}
 ---
 Name: {{document.page_content}}
-Description: {{document.metadata.Desc}}
+Description: {{document.metadata}}
 ---
 
 {% endfor -%}
