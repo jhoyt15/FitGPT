@@ -44,13 +44,12 @@ const Contact = () => {
             required
           >
             <option value="" disabled>Choose a topic</option>
-            <option value="audio-video">Audio & Video</option>
-            <option value="billing-plans">Billing & Plans</option>
-            <option value="connection-trouble">Connection Trouble</option>
-            <option value="managing-channels">Managing Channels</option>
-            <option value="managing-members">Managing Members</option>
+            <option value="audio-video">Login Issues</option>
+            <option value="billing-plans">Finding the right workoutplan</option>
+            <option value="connection-trouble">Exercise tutorials & guidance</option>
+            <option value="managing-channels">Tracking progress</option>
+            <option value="managing-members">Website not loading </option>
             <option value="notifications">Notifications</option>
-            <option value="signing-in">Signing In</option>
             <option value="slack-connect">FitGPT Connect</option>
             <option value="other">Other</option>
           </select>
