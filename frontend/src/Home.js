@@ -7,6 +7,7 @@ const Home = () => {
       {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-content">
+          <h1>FITGPT</h1>
           <h1>Your AI-Powered Fitness Coach</h1>
           <p>Personalized workouts, feedback and fitness tracking—all in one chat.</p>
           <button className="cta-button" onClick={() => window.location.href = '/generate'}>
