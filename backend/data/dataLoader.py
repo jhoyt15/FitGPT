@@ -2,7 +2,7 @@ import json
 import csv
 import os
 from dotenv import load_dotenv
-from elasticsearch import Elasticsearch, NotFoundError
+from elasticsearch import Elasticsearch
 from langchain.docstore.document import Document
 from langchain_community.vectorstores.elasticsearch import ElasticsearchStore
 from langchain_community.embeddings import HuggingFaceEmbeddings
@@ -14,6 +14,8 @@ ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL", "http://elasticsearch:9200")
 ELASTICSEARCH_USER = os.getenv("ELASTICSEARCH_USER")
 ELASTICSEARCH_PASSWORD = os.getenv("ELASTICSEARCH_PASSWORD")
 ELASTICSEARCH_API_KEY = os.getenv("ELASTICSEARCH_API_KEY")
+
+es_connection = Elasticsearch("http://elasticsearch:9200",verify_certs=False)
 
 es_connection = Elasticsearch(
     ELASTICSEARCH_URL,
@@ -29,6 +31,7 @@ def make_json(data_path: str, json_path: str) -> None:
     # Open a csv reader called DictReader
     with open(data_path, encoding='utf-8') as csvf:
         csvReader = csv.DictReader(csvf)
+        data = []  
         for row in csvReader:
             row['Title'] = f"{row['Title']} {row['Equipment']} {row['Level']} {row['BodyPart']} {row['Type']}"
             data.append(row)
@@ -126,7 +129,7 @@ def make_index():
         es.indices.refresh(index='workouts')
         print("Indexed sample workouts as fallback")
 
-def get_embedding_model()->HuggingFaceEmbeddings:
+def get_embedding_model():
     '''Initalizes the HuggingFace embedding model'''
     embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
     return embedding
@@ -170,5 +173,56 @@ def make_rag_index():
     )
     print('RAG index created successfully')
 
+def new_rag_index():
+    """Create and populate the RAG-enabled index with comprehensive workout data"""
+    embedding = get_embedding_model()
+    print('Initializing embedding model...')
+
+    # Define the metadata keys we want to preserve
+    metadata_keys = [
+        "Equipment",
+        "Variation",
+        "Utility",
+        "Mechanics",
+        "Force",
+        "Preparation",
+        "Execution",
+        "Target_Muscles",
+        "Synergist_Muscles",
+        "Stabilizer_Muscles",
+        "Antagonist_Muscles",
+        "Dynamic_Stabilizer_Muscles",
+        "Main_muscle",
+        "Difficulty (1-5)",
+        "Secondary Muscles",
+        "parent_id"
+    ]
+
+    # Load workout data from JSON file
+    workouts = []
+    with open('data/gym_exercise_dataset.json', 'rt') as file:
+        for document in json.loads(file.read()):
+            # Create a more detailed title that includes key information
+            #enhanced_title = f"{document['Title']} - {document['Type']} workout for {document['Level']} level, targeting {document['BodyPart']} using {document['Equipment']}"
+            
+            workouts.append(
+                Document(
+                    page_content=document['Exercise Name'],
+                    metadata={key: document.get(key) for key in metadata_keys}
+                )
+            )
+    
+    # Delete existing index if it exists
+    es_connection.indices.delete(index='workouts_rag', ignore_unavailable=True)
+
+    # Create new index with the workout documents
+    ElasticsearchStore.from_documents(
+        documents=workouts,
+        es_connection=es_connection,
+        index_name='workouts_rag',
+        embedding=embedding
+    )
+    print('RAG index created successfully')
+
 if __name__ == "__main__":
-    make_rag_index()
+    new_rag_index()

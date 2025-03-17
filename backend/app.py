@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, url_for, redirect, session
+from flask import Flask, request, jsonify, make_response, Response, stream_with_context
 from flask_cors import CORS
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from google.oauth2 import id_token
@@ -10,6 +10,8 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_community.vectorstores.elasticsearch import ElasticsearchStore
 from langchain_community.embeddings import HuggingFaceEmbeddings
 import click
+import sys
+from src.chat import prompt_llm
 from advisors.mistral_advisor import MistralWorkoutAdvisor
 from mistralai.models.chat_completion import ChatMessage
 import time
@@ -582,6 +584,21 @@ def check():
 def rag():
     make_rag_index()
 
+@app.route('/chat',methods=["POST"])
+def ask_question():
+    if request.method != "POST":
+        return jsonify({"error":"Method must be post"}), 400
+    data = request.get_json()
+    if not data or "query" not in data or "session_id" not in data:
+        return jsonify({"error":"Invalid request"}), 400
+    try:
+        query = data["query"]
+        session_id = data["session_id"]
+        answer = prompt_llm(query,session_id)  
+        return jsonify({"response":answer}), 200
+    except Exception as e:
+        return jsonify({"error":e}), 500
+=======
 @app.route("/test-mistral")
 def test_mistral():
     try:
