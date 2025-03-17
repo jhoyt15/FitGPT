@@ -7,13 +7,12 @@ from elasticsearch import Elasticsearch
 from data.dataLoader import make_index, make_rag_index
 from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langchain_community.vectorstores.elasticsearch import ElasticsearchStore
+from langchain_elasticsearch import ElasticsearchStore
 from langchain_community.embeddings import HuggingFaceEmbeddings
 import click
 import sys
 from src.chat import prompt_llm
 from advisors.mistral_advisor import MistralWorkoutAdvisor
-from mistralai.models.chat_completion import ChatMessage
 import time
 import json
 import re
@@ -146,13 +145,13 @@ def query_es():
             
             # Use Mistral to understand the query
             query_messages = [
-                ChatMessage(
-                    role="system",
-                    content="Analyze this workout request and extract the key details in JSON format. Return ONLY the JSON object, no explanations or additional text."
-                ),
-                ChatMessage(
-                    role="user",
-                    content=f"""
+                {
+                    "role": "system",
+                    "content": "Analyze this workout request and extract the key details in JSON format. Return ONLY the JSON object, no explanations or additional text."
+                },
+                {
+                    "role": "user",
+                    "content": f"""
                     Request: {user_query}
                     
                     Return a JSON object with these fields:
@@ -165,13 +164,13 @@ def query_es():
                     
                     Return ONLY the JSON object, no explanations or additional text.
                     """
-                )
+                }
             ]
             
             # Get structured understanding of the query
             try:
                 print("\nSending request to Mistral API...")
-                response = mistral_advisor.client.chat(
+                response = mistral_advisor.client.chat.complete(
                     model="mistral-tiny",
                     messages=query_messages,
                     temperature=0.7,
@@ -469,18 +468,18 @@ def query_es():
                 
                 # Get day-specific advice from Mistral
                 day_advice_messages = [
-                    ChatMessage(
-                        role="system",
-                        content="You are a knowledgeable fitness advisor. Provide a brief overview for this workout day."
-                    ),
-                    ChatMessage(
-                        role="user",
-                        content=f"Create a brief overview for Day {day + 1} of a {days_per_week}-day workout plan. Focus on: {', '.join([ex['BodyPart'] for ex in day_exercises if ex.get('BodyPart')])}"
-                    )
+                    {
+                        "role": "system",
+                        "content": "You are a knowledgeable fitness advisor. Provide a brief overview for this workout day."
+                    },
+                    {
+                        "role": "user",
+                        "content": f"Create a brief overview for Day {day + 1} of a {days_per_week}-day workout plan. Focus on: {', '.join([ex['BodyPart'] for ex in day_exercises if ex.get('BodyPart')])}"
+                    }
                 ]
                 
                 try:
-                    day_advice_response = mistral_advisor.client.chat(
+                    day_advice_response = mistral_advisor.client.chat.complete(
                         model="mistral-tiny",
                         messages=day_advice_messages,
                         temperature=0.7,
@@ -500,18 +499,18 @@ def query_es():
             
             # Get overall plan advice from Mistral
             plan_advice_messages = [
-                ChatMessage(
-                    role="system",
-                    content="You are a knowledgeable fitness advisor. Provide a brief overview of this workout plan."
-                ),
-                ChatMessage(
-                    role="user",
-                    content=f"Create a brief overview for a {days_per_week}-day workout plan at {workout_plan['level']} level."
-                )
+                {
+                    "role": "system",
+                    "content": "You are a knowledgeable fitness advisor. Provide a brief overview of this workout plan."
+                },
+                {
+                    "role": "user",
+                    "content": f"Create a brief overview for a {days_per_week}-day workout plan at {workout_plan['level']} level."
+                }
             ]
             
             try:
-                plan_advice_response = mistral_advisor.client.chat(
+                plan_advice_response = mistral_advisor.client.chat.complete(
                     model="mistral-tiny",
                     messages=plan_advice_messages,
                     temperature=0.7,
@@ -688,13 +687,13 @@ def test_mistral_key():
     """Test endpoint to verify Mistral API key is working"""
     try:
         print("\nTesting Mistral API key...")
-        response = mistral_advisor.client.chat(
+        response = mistral_advisor.client.chat.complete(
             model="mistral-tiny",
             messages=[
-                ChatMessage(
-                    role="user",
-                    content="Say 'API key is working' if you can read this message."
-                )
+                {
+                    "role": "user",
+                    "content": "Say 'API key is working' if you can read this message."
+                }
             ],
             temperature=0.7,
             max_tokens=20
