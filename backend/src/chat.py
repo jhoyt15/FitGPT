@@ -1,6 +1,5 @@
 import os
 import sys
-from flask import stream_template_string
 from dotenv import load_dotenv
 from elasticsearch import Elasticsearch
 from langchain_elasticsearch import ElasticsearchStore
