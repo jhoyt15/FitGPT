@@ -1,49 +1,58 @@
 version: '3.8'
-services:
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.1
-    container_name: es01
-    environment:
-      - discovery.type=single-node
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
-      - xpack.security.enabled=false
-      - network.host=0.0.0.0
-    ports:
-      - 9200:9200
-      - 9300:9300
-    networks:
-      - elastic
 
-  flask-app:
-    build: ./backend
-    container_name: flask-app
+services:
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
-      - 5001:5000
+      - "5001:5000"
     environment:
-      - FLASK_ENV=development
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
       - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - FILE=/app/data/exerciseData.json
+      - FLASK_ENV=development
+      - FLASK_APP=app.py
+      - PYTHONUNBUFFERED=1
     volumes:
       - ./backend:/app
-    env_file:
-      - ./.env
     depends_on:
-      - elasticsearch
-    networks:
-      - elastic
+      elasticsearch:
+        condition: service_healthy
+    container_name: fitgpt-backend
 
   frontend:
-    build: ./frontend
-    container_name: react-app
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - 3000:3000
-    env_file:
-      - ./frontend/.env
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     depends_on:
-      - flask-app
-    networks:
-      - elastic
+      - backend
+    container_name: fitgpt-frontend
 
-networks:
-  elastic:
-    driver: bridge
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.9
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+      - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
+      - http.cors.allow-credentials=true
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    container_name: fitgpt-elasticsearch
+
+volumes:
+  esdata:
