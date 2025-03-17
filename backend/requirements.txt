@@ -2,6 +2,17 @@ Flask==2.0.1
 Werkzeug==2.0.3
 elasticsearch==8.11.0
 langchain
+langchain_elasticsearch
+langchain_huggingface
+python-dotenv
+flask-cors
+sentence-transformers
+langchain_mistralai
+fuzzywuzzy
+jinja2
+python-Levenshtein
+gunicorn
+gevent
 langchain-community
 langchain-core
 mistralai==0.0.7
