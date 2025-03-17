@@ -1,27 +1,31 @@
-Flask==2.0.1
+Flask==2.3.3
 Werkzeug==2.0.3
-elasticsearch==8.17.1
-langchain
-langchain_elasticsearch
-langchain_huggingface
-python-dotenv
-flask-cors
-sentence-transformers
-langchain_mistralai
-fuzzywuzzy
-jinja2
-python-Levenshtein
-gunicorn
-gevent
-langchain-community
-langchain-core
-mistralai==0.0.7
-python-dotenv
-flask-cors
-huggingface-hub
-sentence-transformers
-Flask-Login
+elasticsearch==8.10.0
+# Core packages without version restrictions
+langchain==0.1.8
+langchain-core==0.1.20
+langchain-community==0.0.27
+langchain-elasticsearch==0.0.6
+# Base packages
+python-dotenv==1.0.0
+flask-cors==4.0.0
+Flask-Login==0.6.2
+# Auth packages
 oauthlib
 requests-oauthlib
-google-auth
-google-auth-oauthlib
+google-auth==2.25.1
+google-auth-oauthlib==1.2.0
+# ML packages
+huggingface-hub
+transformers
+sentence-transformers==2.2.2
+# Utils
+fuzzywuzzy==0.18.0
+jinja2==3.1.2
+python-Levenshtein
+gunicorn
+# gevent
+mistralai>=0.1.8
+langchain-mistralai
+wheel
+scikit-learn==1.2.2
