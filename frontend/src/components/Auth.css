@@ -1,0 +1,88 @@
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 0.5rem 1rem;
+    width: 100%;
+}
+
+.google-login-wrapper {
+    margin: 1rem 0;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: #f7fafc;
+    border-radius: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.user-profile:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.profile-pic {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.user-name {
+    font-weight: 600;
+    color: #2d3748;
+    white-space: nowrap;
+    font-size: 0.95rem;
+}
+
+.logout-button {
+    padding: 0.5rem 1rem;
+    background-color: #e53e3e;
+    color: white;
+    border: none;
+    border-radius: 1.5rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.logout-button:hover {
+    background-color: #c53030;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .user-profile {
+        flex-direction: row;
+        gap: 0.75rem;
+        padding: 0.5rem 0.75rem;
+        margin-left: auto;
+    }
+    
+    .user-name {
+        text-align: left;
+        font-size: 0.9rem;
+    }
+
+    .profile-pic {
+        width: 32px;
+        height: 32px;
+    }
+
+    .logout-button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+} 
