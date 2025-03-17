@@ -6,23 +6,37 @@ import '../Content.css'
 const Chat = () => {
     const [query,setQuery] = useState('')
     const [answer,setAnswer] = useState('')
+    const [loading,setLoading] = useState(false)
 
     const answerQuestion = () => {
-        fetch('/prompt-llm',{method:'POST',headers: {"Content-Type": "application/json"},body:JSON.stringify({query:query})})
+        fetch('/chat',{method:'POST',headers: {"Content-Type": "application/json"},body:JSON.stringify({query:query})})
         .then(response => response.json())
-        .then(data => setAnswer(data.response))
+        .then(data => {
+            setAnswer(data.response) 
+            setLoading(false)
+        })
+        .catch(() => setLoading(false))
+    }
+
+    const handleLoading = () => {
+        setLoading(true);
     }
 
     return (
         <div className="form-group">
             <input type = "search" value = {query} onChange ={(e) => setQuery(e.target.value)} onKeyDown={(e) => {
-                if(e.key === "Enter")
+                if(e.key === "Enter") {
+                    handleLoading()
                     answerQuestion()
+                }
             }}>
             </input>
-            <p>
+            { loading ? <p> Thinking... </p> : (
+                <p>
                 {answer}
-            </p>
+                </p>
+                )
+            }
         </div>
     )
 }
