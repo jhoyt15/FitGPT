@@ -4,8 +4,8 @@ import os
 from dotenv import load_dotenv
 from elasticsearch import Elasticsearch
 from langchain.docstore.document import Document
-from langchain_elasticsearch import ElasticsearchStore
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.vectorstores.elasticsearch import ElasticsearchStore
+from langchain_community.embeddings import HuggingFaceEmbeddings
 
 load_dotenv()
 
@@ -13,32 +13,41 @@ FILE = os.getenv("FILE", 'data/exerciseData.json')
 ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL", "http://elasticsearch:9200")
 ELASTICSEARCH_USER = os.getenv("ELASTICSEARCH_USER")
 ELASTICSEARCH_PASSWORD = os.getenv("ELASTICSEARCH_PASSWORD")
-ELASTICSEARCH_API_KEY = os.getenv("ELASTICSEARCH_API")
+ELASTICSEARCH_API_KEY = os.getenv("ELASTICSEARCH_API_KEY")
 
 es_connection = Elasticsearch("http://elasticsearch:9200",verify_certs=False)
 
+es_connection = Elasticsearch(
+    ELASTICSEARCH_URL,
+    basic_auth=(ELASTICSEARCH_USER, ELASTICSEARCH_PASSWORD) if ELASTICSEARCH_USER and ELASTICSEARCH_PASSWORD else None,
+    api_key=ELASTICSEARCH_API_KEY,
+    ca_certs='cert.crt' if os.path.exists('cert.crt') else None
+)
 
-def make_json(data_path:str,json_path:str)->None:
-     
-    # create a dictionary
-    data = {}
+def make_json(data_path: str, json_path: str) -> None:
+    # Create a dictionary
+    data = []
     
     # Open a csv reader called DictReader
     with open(data_path, encoding='utf-8') as csvf:
         csvReader = csv.DictReader(csvf)
         data = []  
         for row in csvReader:
-            row['Title'] = row['Title'] + ' ' + row['Equipment'] + ' ' + row['Level'] + ' ' + row['BodyPart'] + ' ' +row['Type']
+            row['Title'] = f"{row['Title']} {row['Equipment']} {row['Level']} {row['BodyPart']} {row['Type']}"
             data.append(row)
-        
-
+    
     # Open a json writer, and use the json.dumps() 
     # function to dump data
     with open(json_path, 'w', encoding='utf-8') as jsonf:
         jsonf.write(json.dumps(data, indent=4))
 
 def make_index():
-    es = Elasticsearch("http://elasticsearch:9200")
+    es = Elasticsearch(
+        ELASTICSEARCH_URL,
+        basic_auth=(ELASTICSEARCH_USER, ELASTICSEARCH_PASSWORD) if ELASTICSEARCH_USER and ELASTICSEARCH_PASSWORD else None,
+        api_key=ELASTICSEARCH_API_KEY,
+        ca_certs='cert.crt' if os.path.exists('cert.crt') else None
+    )
     
     # Define mapping for workout data
     mapping = {
@@ -47,42 +56,78 @@ def make_index():
                 "Title": {"type": "text"},
                 "Description": {"type": "text"},
                 "Type": {"type": "keyword"},
-                "Difficulty": {"type": "keyword"}
+                "Equipment": {"type": "keyword"},
+                "Level": {"type": "keyword"},
+                "BodyPart": {"type": "keyword"}
             }
         }
     }
     
     # Create the index with mapping
-    es.indices.create(index='workouts', body=mapping, ignore=400)
+    try:
+        es.indices.delete(index='workouts', ignore_unavailable=True)
+    except Exception as e:
+        print(f"Error deleting index: {str(e)}")
     
-    # Sample workout data
-    workouts = [
-        {
-            "Title": "Push-up Workout",
-            "Description": "Classic chest and triceps workout",
-            "Type": "Strength",
-            "Difficulty": "Beginner"
-        },
-        {
-            "Title": "Basic Chest Workout",
-            "Description": "Fundamental chest exercises for beginners",
-            "Type": "Strength",
-            "Difficulty": "Beginner"
-        },
-        {
-            "Title": "Advanced Chest Training",
-            "Description": "Intense chest workout for experienced athletes",
-            "Type": "Strength",
-            "Difficulty": "Advanced"
-        }
-    ]
+    es.indices.create(index='workouts', body=mapping)
     
-    # Index the workouts
-    for workout in workouts:
-        es.index(index='workouts', document=workout)
-    
-    # Refresh the index
-    es.indices.refresh(index='workouts')
+    # Load workout data from JSON file
+    try:
+        with open(FILE, 'rt') as file:
+            workouts = json.loads(file.read())
+            
+            # Get unique equipment types
+            equipment_types = set()
+            for workout in workouts:
+                equipment_types.add(workout.get('Equipment', ''))
+            print("Available equipment types:", sorted(list(equipment_types)))
+            
+            # Index the workouts
+            for workout in workouts:
+                # Format the workout data
+                formatted_workout = {
+                    "Title": workout.get('Title', ''),
+                    "Description": workout.get('Desc', ''),
+                    "Type": workout.get('Type', ''),
+                    "Equipment": workout.get('Equipment', ''),
+                    "Level": workout.get('Level', ''),
+                    "BodyPart": workout.get('BodyPart', '')
+                }
+                es.index(index='workouts', document=formatted_workout)
+        
+        # Refresh the index
+        es.indices.refresh(index='workouts')
+        print(f"Successfully indexed {len(workouts)} workouts")
+        
+    except Exception as e:
+        print(f"Error loading workouts: {str(e)}")
+        # Add some sample workouts as fallback
+        workouts = [
+            {
+                "Title": "Push-up Workout",
+                "Description": "Classic chest and triceps workout",
+                "Type": "Strength",
+                "Equipment": "Bodyweight",
+                "Level": "Beginner",
+                "BodyPart": "Chest"
+            },
+            {
+                "Title": "Basic Chest Workout",
+                "Description": "Fundamental chest exercises for beginners",
+                "Type": "Strength",
+                "Equipment": "Dumbbells",
+                "Level": "Beginner",
+                "BodyPart": "Chest"
+            }
+        ]
+        
+        # Index the sample workouts
+        for workout in workouts:
+            es.index(index='workouts', document=workout)
+        
+        # Refresh the index
+        es.indices.refresh(index='workouts')
+        print("Indexed sample workouts as fallback")
 
 def get_embedding_model():
     '''Initalizes the HuggingFace embedding model'''
@@ -91,7 +136,9 @@ def get_embedding_model():
 
 def make_rag_index():
     """Create and populate the RAG-enabled index with comprehensive workout data"""
-    embedding = get_embedding_model()
+    embedding = HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-mpnet-base-v2"
+    )
     print('Initializing embedding model...')
 
     # Define the metadata keys we want to preserve
