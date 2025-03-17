@@ -598,7 +598,8 @@ def ask_question():
         return jsonify({"response":answer}), 200
     except Exception as e:
         return jsonify({"error":e}), 500
-=======
+
+
 @app.route("/test-mistral")
 def test_mistral():
     try:
