@@ -17,12 +17,7 @@ ELASTICSEARCH_API_KEY = os.getenv("ELASTICSEARCH_API_KEY")
 
 es_connection = Elasticsearch("http://elasticsearch:9200",verify_certs=False)
 
-es_connection = Elasticsearch(
-    ELASTICSEARCH_URL,
-    basic_auth=(ELASTICSEARCH_USER, ELASTICSEARCH_PASSWORD) if ELASTICSEARCH_USER and ELASTICSEARCH_PASSWORD else None,
-    api_key=ELASTICSEARCH_API_KEY,
-    ca_certs='cert.crt' if os.path.exists('cert.crt') else None
-)
+es_connection = Elasticsearch(ELASTICSEARCH_URL,verify_certs=False)
 
 def make_json(data_path: str, json_path: str) -> None:
     # Create a dictionary
