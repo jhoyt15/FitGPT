@@ -343,12 +343,39 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.workout-history h2 {
-    color: #2d3748;
-    font-size: 1.5rem;
+.workout-history .history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 1.5rem;
     padding-bottom: 0.5rem;
     border-bottom: 2px solid #e2e8f0;
+}
+
+.workout-history h2 {
+    color: #2d3748;
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.clear-history-button {
+    padding: 0.5rem 1rem;
+    background-color: #e53e3e;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.clear-history-button:hover {
+    background-color: #c53030;
+}
+
+.clear-history-button:disabled {
+    background-color: #a0aec0;
+    cursor: not-allowed;
 }
 
 .history-list {
