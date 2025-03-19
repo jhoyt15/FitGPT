@@ -27,10 +27,53 @@ Before running this project, make sure you have the following installed:
 
 ## Environment Setup
 
-1. Create a `.env` file in the root directory:
-```
+1. Create a `.env` file in the `backend/` directory with the following variables:
+```env
+# Required - Your Mistral API key (get from https://mistral.ai)
+MISTRAL_API_KEY=your_mistral_api_key_here
+
+# Required - Elasticsearch configuration
 ELASTICSEARCH_URL=http://elasticsearch:9200
+
+# Required - Flask secret key (generate using command below)
+FLASK_SECRET_KEY=your_generated_secret_key
+
+# Required for Google OAuth (get from Google Cloud Console)
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
 ```
+
+2. Create a `.env` file in the `frontend/` directory:
+```env
+# Required for Google OAuth (same client ID as backend)
+REACT_APP_GOOGLE_CLIENT_ID=your_google_client_id_here
+```
+
+3. Generate a Flask secret key using Python:
+```bash
+python3 -c "import secrets; print(secrets.token_hex(16))"
+```
+
+4. Get your API keys:
+   - Mistral API key: Sign up at [Mistral AI](https://mistral.ai)
+   - Google OAuth credentials: 
+     1. Go to [Google Cloud Console](https://console.cloud.google.com)
+     2. Create a new project or select existing one
+     3. Enable Google OAuth API
+     4. Create OAuth 2.0 credentials
+     5. Add authorized origins:
+        - http://localhost:3000
+        - http://localhost:5000
+     6. Add authorized redirect URIs:
+        - http://localhost:3000/
+        - http://localhost:3000/login
+        - http://localhost:3000/callback
+
+⚠️ IMPORTANT:
+- Never commit your `.env` files to version control
+- Keep your API keys and secrets secure
+- Each team member needs their own Mistral API key
+- Team members can share the same Google OAuth credentials
 
 ## Getting Started
 
@@ -100,6 +143,12 @@ docker-compose down -v
 # Rebuild from scratch
 docker-compose up --build
 ```
+
+4. **Environment Variables Issues:**
+- Check that both `.env` files exist in their correct locations
+- Verify Mistral API key is valid
+- Ensure Google OAuth credentials are properly configured
+- No spaces around `=` signs in `.env` files
 
 ### Viewing Logs
 ```bash

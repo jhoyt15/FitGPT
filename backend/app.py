@@ -776,6 +776,25 @@ def get_workout_history():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/user/workout-history', methods=['DELETE'])
+@login_required
+def delete_workout_history():
+    try:
+        # Delete all workout history for the current user
+        response = es.delete_by_query(
+            index='workout_history',
+            body={
+                "query": {
+                    "term": {
+                        "user_id": current_user.id
+                    }
+                }
+            }
+        )
+        return jsonify({"message": "Workout history cleared successfully", "deleted": response.body['deleted']})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     with app.app_context():
         make_index()
