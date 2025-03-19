@@ -44,7 +44,7 @@ def prompt_llm(question:str,session_id:int):
         split_days = workout_split["days"]
         for day,muscle_groups in split_days.items():
             for muscle in muscle_groups:
-                documents.extend(doc_store.similarity_search(muscle,k=2))
+                documents.extend(doc_store.similarity_search(muscle,k=20))
     else:
         documents.extend(doc_store.similarity_search(question,k=3))
         

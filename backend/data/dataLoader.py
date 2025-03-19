@@ -39,9 +39,7 @@ def make_json(data_path: str, json_path: str) -> None:
 def make_index():
     es = Elasticsearch(
         ELASTICSEARCH_URL,
-        basic_auth=(ELASTICSEARCH_USER, ELASTICSEARCH_PASSWORD) if ELASTICSEARCH_USER and ELASTICSEARCH_PASSWORD else None,
-        api_key=ELASTICSEARCH_API_KEY,
-        ca_certs='cert.crt' if os.path.exists('cert.crt') else None
+        verify_certs=False
     )
     
     # Define mapping for workout data
