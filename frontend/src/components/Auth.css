@@ -223,4 +223,51 @@
 .google-login-button:active {
     transform: translateY(0);
     box-shadow: none;
+}
+
+.forgot-password {
+    background: none;
+    border: none;
+    color: #007bff;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0;
+    margin: 10px 0;
+    text-decoration: underline;
+}
+
+.forgot-password:hover {
+    color: #0056b3;
+}
+
+.reset-instructions {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.back-to-login {
+    background: none;
+    border: none;
+    color: #007bff;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0;
+    margin-top: 15px;
+    text-decoration: underline;
+    width: 100%;
+}
+
+.back-to-login:hover {
+    color: #0056b3;
 } 

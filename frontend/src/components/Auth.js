@@ -4,7 +4,8 @@ import {
     createUserWithEmailAndPassword,
     signOut,
     GoogleAuthProvider,
-    signInWithPopup
+    signInWithPopup,
+    sendPasswordResetEmail
 } from 'firebase/auth';
 import { auth } from '../firebase';
 import './Auth.css';
@@ -14,6 +15,8 @@ const Auth = ({ onLogin, onLogout, user }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const [isForgotPassword, setIsForgotPassword] = useState(false);
 
     const syncUserWithBackend = async (firebaseUser) => {
         try {
@@ -87,62 +90,122 @@ const Auth = ({ onLogin, onLogout, user }) => {
         }
     };
 
+    const handleForgotPassword = async (e) => {
+        e.preventDefault();
+        try {
+            await sendPasswordResetEmail(auth, email);
+            setSuccessMessage('Password reset email sent! Please check your inbox.');
+            setError('');
+            setIsForgotPassword(false);
+        } catch (error) {
+            setError(error.message);
+            setSuccessMessage('');
+        }
+    };
+
     return (
         <div className="auth-container">
             {!user ? (
                 <div className="auth-forms">
                     <div className="auth-tabs">
                         <button 
-                            className={`auth-tab ${isLogin ? 'active' : ''}`}
-                            onClick={() => setIsLogin(true)}
+                            className={`auth-tab ${isLogin && !isForgotPassword ? 'active' : ''}`}
+                            onClick={() => {
+                                setIsLogin(true);
+                                setIsForgotPassword(false);
+                            }}
                         >
                             Login
                         </button>
                         <button 
-                            className={`auth-tab ${!isLogin ? 'active' : ''}`}
-                            onClick={() => setIsLogin(false)}
+                            className={`auth-tab ${!isLogin && !isForgotPassword ? 'active' : ''}`}
+                            onClick={() => {
+                                setIsLogin(false);
+                                setIsForgotPassword(false);
+                            }}
                         >
                             Register
                         </button>
                     </div>
 
-                    <form onSubmit={isLogin ? handleFirebaseLogin : handleFirebaseRegister}>
-                        <div className="form-group">
-                            <input
-                                type="email"
-                                placeholder="Email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="form-group">
-                            <input
-                                type="password"
-                                placeholder="Password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
-                        </div>
-                        {error && <div className="error-message">{error}</div>}
-                        <button type="submit" className="auth-button">
-                            {isLogin ? 'Login' : 'Register'}
-                        </button>
-                    </form>
+                    {isForgotPassword ? (
+                        <form onSubmit={handleForgotPassword}>
+                            <h2>Reset Password</h2>
+                            <p className="reset-instructions">
+                                Enter your email address and we'll send you a link to reset your password.
+                            </p>
+                            <div className="form-group">
+                                <input
+                                    type="email"
+                                    placeholder="Email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            {error && <div className="error-message">{error}</div>}
+                            {successMessage && <div className="success-message">{successMessage}</div>}
+                            <button type="submit" className="auth-button">
+                                Send Reset Link
+                            </button>
+                            <button 
+                                type="button" 
+                                className="back-to-login"
+                                onClick={() => setIsForgotPassword(false)}
+                            >
+                                Back to Login
+                            </button>
+                        </form>
+                    ) : (
+                        <>
+                            <form onSubmit={isLogin ? handleFirebaseLogin : handleFirebaseRegister}>
+                                <div className="form-group">
+                                    <input
+                                        type="email"
+                                        placeholder="Email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <input
+                                        type="password"
+                                        placeholder="Password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                {error && <div className="error-message">{error}</div>}
+                                <button type="submit" className="auth-button">
+                                    {isLogin ? 'Login' : 'Register'}
+                                </button>
+                            </form>
 
-                    <div className="divider">
-                        <span>or</span>
-                    </div>
+                            {isLogin && (
+                                <button 
+                                    className="forgot-password"
+                                    onClick={() => setIsForgotPassword(true)}
+                                >
+                                    Forgot Password?
+                                </button>
+                            )}
 
-                    <div className="google-login-wrapper">
-                        <button 
-                            onClick={handleGoogleLogin}
-                            className="google-login-button"
-                        >
-                            Continue with Google
-                        </button>
-                    </div>
+                            <div className="divider">
+                                <span>or</span>
+                            </div>
+
+                            <div className="google-login-wrapper">
+                                <button 
+                                    onClick={handleGoogleLogin}
+                                    className="google-login-button"
+                                >
+                                    Continue with Google
+                                </button>
+                            </div>
+                        </>
+                    )}
                 </div>
             ) : (
                 <div className="user-profile">
