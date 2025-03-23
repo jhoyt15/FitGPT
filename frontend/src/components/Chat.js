@@ -9,7 +9,7 @@ const Chat = () => {
     const [loading,setLoading] = useState(false)
 
     const answerQuestion = () => {
-        fetch('/query',{method:'POST',headers: {"Content-Type": "application/json"},credentials:'include',body:JSON.stringify({query:query,session_id:0})})
+        fetch('/chat',{method:'POST',headers: {"Content-Type": "application/json"},credentials:'include',body:JSON.stringify({query:query,session_id:0})})
         .then(response => response.json())
         .then(data => {
             setAnswer(data.response) 
