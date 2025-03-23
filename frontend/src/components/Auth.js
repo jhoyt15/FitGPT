@@ -1,10 +1,21 @@
-import React from 'react';
-import { GoogleLogin } from '@react-oauth/google';
+import React, { useState } from 'react';
+import { 
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signOut,
+    GoogleAuthProvider,
+    signInWithPopup
+} from 'firebase/auth';
+import { auth } from '../firebase';
 import './Auth.css';
 
 const Auth = ({ onLogin, onLogout, user }) => {
-    const handleSuccess = async (credentialResponse) => {
-        console.log('Google login successful, credential response:', credentialResponse);
+    const [isLogin, setIsLogin] = useState(true);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+
+    const syncUserWithBackend = async (firebaseUser) => {
         try {
             const response = await fetch('http://localhost:5001/auth/google', {
                 method: 'POST',
@@ -12,28 +23,62 @@ const Auth = ({ onLogin, onLogout, user }) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    token: credentialResponse.credential
+                    token: await firebaseUser.getIdToken(),
+                    email: firebaseUser.email,
+                    name: firebaseUser.displayName,
+                    profile_pic: firebaseUser.photoURL
                 }),
                 credentials: 'include'
             });
 
             const data = await response.json();
-            console.log('Backend response:', data);
-            
             if (data.status === 'success' && data.user) {
-                console.log('Login successful, user data:', data.user);
-                await onLogin(data.user);
+                onLogin(data.user);
             } else {
-                console.error('Login failed:', data);
+                throw new Error('Failed to sync user with backend');
             }
         } catch (error) {
-            console.error('Login failed:', error);
+            console.error('Error syncing user with backend:', error);
+            throw error;
+        }
+    };
+
+    const handleFirebaseLogin = async (e) => {
+        e.preventDefault();
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            await syncUserWithBackend(userCredential.user);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
+    const handleFirebaseRegister = async (e) => {
+        e.preventDefault();
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            await syncUserWithBackend(userCredential.user);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
+    const handleGoogleLogin = async () => {
+        try {
+            const provider = new GoogleAuthProvider();
+            const result = await signInWithPopup(auth, provider);
+            await syncUserWithBackend(result.user);
+        } catch (error) {
+            console.error('Google login failed:', error);
+            setError('Login failed. Please try again.');
         }
     };
 
     const handleLogout = async () => {
         try {
-            await fetch(`${process.env.REACT_APP_API_URL}/auth/logout`, {
+            await signOut(auth);
+            await fetch('http://localhost:5001/auth/logout', {
+                method: 'GET',
                 credentials: 'include'
             });
             onLogout();
@@ -45,19 +90,59 @@ const Auth = ({ onLogin, onLogout, user }) => {
     return (
         <div className="auth-container">
             {!user ? (
-                <div className="google-login-wrapper">
-                    <GoogleLogin
-                        onSuccess={handleSuccess}
-                        onError={(error) => {
-                            console.error('Login Failed:', error);
-                        }}
-                        useOneTap
-                        theme="filled_blue"
-                        shape="pill"
-                        size="large"
-                        text="continue_with"
-                        locale="en"
-                    />
+                <div className="auth-forms">
+                    <div className="auth-tabs">
+                        <button 
+                            className={`auth-tab ${isLogin ? 'active' : ''}`}
+                            onClick={() => setIsLogin(true)}
+                        >
+                            Login
+                        </button>
+                        <button 
+                            className={`auth-tab ${!isLogin ? 'active' : ''}`}
+                            onClick={() => setIsLogin(false)}
+                        >
+                            Register
+                        </button>
+                    </div>
+
+                    <form onSubmit={isLogin ? handleFirebaseLogin : handleFirebaseRegister}>
+                        <div className="form-group">
+                            <input
+                                type="email"
+                                placeholder="Email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <input
+                                type="password"
+                                placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                        </div>
+                        {error && <div className="error-message">{error}</div>}
+                        <button type="submit" className="auth-button">
+                            {isLogin ? 'Login' : 'Register'}
+                        </button>
+                    </form>
+
+                    <div className="divider">
+                        <span>or</span>
+                    </div>
+
+                    <div className="google-login-wrapper">
+                        <button 
+                            onClick={handleGoogleLogin}
+                            className="google-login-button"
+                        >
+                            Continue with Google
+                        </button>
+                    </div>
                 </div>
             ) : (
                 <div className="user-profile">

@@ -173,3 +173,4 @@ cython_debug/
 
 #Certification files
 *.crt
+backend/fitgpt-32ad7-firebase-adminsdk-fbsvc-0557ed928e.json

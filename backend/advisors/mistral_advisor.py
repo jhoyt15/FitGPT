@@ -1,10 +1,10 @@
-from mistralai import Mistral
+from mistralai.client import MistralClient
 import os
 
 class MistralWorkoutAdvisor:
     def __init__(self):
         # Make sure to set MISTRAL_API_KEY in your environment variables
-        self.client = Mistral(api_key=os.getenv('MISTRAL_API_KEY'))
+        self.client = MistralClient(api_key=os.getenv('MISTRAL_API_KEY'))
         
     def generate_advice(self, workout_data, research_findings):
         messages = [
