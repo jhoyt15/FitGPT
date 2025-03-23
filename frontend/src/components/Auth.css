@@ -270,4 +270,110 @@
 
 .back-to-login:hover {
     color: #0056b3;
+}
+
+.password-strength {
+    font-size: 0.8rem;
+    margin-top: 5px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    text-align: center;
+}
+
+.password-strength.weak {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.password-strength.medium {
+    background-color: #fff3e0;
+    color: #ef6c00;
+}
+
+.password-strength.strong {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.password-error {
+    color: #c62828;
+    font-size: 0.8rem;
+    margin-top: 5px;
+}
+
+.password-requirements {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    font-size: 0.85rem;
+}
+
+.requirement {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0;
+    color: #666;
+    transition: color 0.2s ease;
+}
+
+.requirement.met {
+    color: #2e7d32;
+}
+
+.requirement.met:before {
+    color: #2e7d32;
+}
+
+@keyframes checkmark {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.requirement.met {
+    animation: checkmark 0.2s ease-in-out;
+}
+
+.verification-sent {
+    text-align: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.verification-sent h3 {
+    color: #2196f3;
+    margin-bottom: 15px;
+}
+
+.verification-sent p {
+    color: #666;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.resend-button {
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    width: 100%;
+    transition: background-color 0.2s;
+}
+
+.resend-button:hover {
+    background-color: #1976d2;
 } 
+    

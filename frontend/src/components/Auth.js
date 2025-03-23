@@ -5,7 +5,8 @@ import {
     signOut,
     GoogleAuthProvider,
     signInWithPopup,
-    sendPasswordResetEmail
+    sendPasswordResetEmail,
+    sendEmailVerification
 } from 'firebase/auth';
 import { auth } from '../firebase';
 import './Auth.css';
@@ -17,6 +18,16 @@ const Auth = ({ onLogin, onLogout, user }) => {
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [isForgotPassword, setIsForgotPassword] = useState(false);
+    const [passwordError, setPasswordError] = useState('');
+    const [passwordStrength, setPasswordStrength] = useState('');
+    const [passwordCriteria, setPasswordCriteria] = useState({
+        length: false,
+        uppercase: false,
+        lowercase: false,
+        number: false,
+        special: false
+    });
+    const [verificationSent, setVerificationSent] = useState(false);
 
     const syncUserWithBackend = async (firebaseUser) => {
         try {
@@ -46,10 +57,44 @@ const Auth = ({ onLogin, onLogout, user }) => {
         }
     };
 
+    const checkPasswordStrength = (password) => {
+        const criteria = {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /\d/.test(password),
+            special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+        };
+        
+        setPasswordCriteria(criteria);
+        
+        // Calculate strength based on how many criteria are met
+        const strengthScore = Object.values(criteria).filter(Boolean).length;
+        
+        if (strengthScore < 3) {
+            setPasswordStrength('weak');
+            return false;
+        } else if (strengthScore < 5) {
+            setPasswordStrength('medium');
+            return true;
+        } else {
+            setPasswordStrength('strong');
+            return true;
+        }
+    };
+
     const handleFirebaseLogin = async (e) => {
         e.preventDefault();
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            
+            // Check if email is verified
+            if (!userCredential.user.emailVerified) {
+                setError('Please verify your email before logging in. Check your inbox for the verification link.');
+                // Optionally, add a button to resend verification email
+                return;
+            }
+
             await syncUserWithBackend(userCredential.user);
         } catch (error) {
             setError(error.message);
@@ -58,11 +103,23 @@ const Auth = ({ onLogin, onLogout, user }) => {
 
     const handleFirebaseRegister = async (e) => {
         e.preventDefault();
+        
         try {
+            // Create the user account
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            await syncUserWithBackend(userCredential.user);
+            
+            // Send verification email
+            await sendEmailVerification(userCredential.user);
+            
+            setVerificationSent(true);
+            setError('');
+            
+            // Show verification message instead of automatically logging in
+            setSuccessMessage('Verification email sent! Please check your inbox and verify your email before logging in.');
+            
         } catch (error) {
             setError(error.message);
+            setVerificationSent(false);
         }
     };
 
@@ -100,6 +157,19 @@ const Auth = ({ onLogin, onLogout, user }) => {
         } catch (error) {
             setError(error.message);
             setSuccessMessage('');
+        }
+    };
+
+    // Add function to resend verification email
+    const handleResendVerification = async () => {
+        try {
+            const currentUser = auth.currentUser;
+            if (currentUser && !currentUser.emailVerified) {
+                await sendEmailVerification(currentUser);
+                setSuccessMessage('Verification email resent! Please check your inbox.');
+            }
+        } catch (error) {
+            setError(error.message);
         }
     };
 
@@ -158,30 +228,76 @@ const Auth = ({ onLogin, onLogout, user }) => {
                         </form>
                     ) : (
                         <>
-                            <form onSubmit={isLogin ? handleFirebaseLogin : handleFirebaseRegister}>
-                                <div className="form-group">
-                                    <input
-                                        type="email"
-                                        placeholder="Email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        required
-                                    />
+                            {verificationSent ? (
+                                <div className="verification-sent">
+                                    <h3>Verify Your Email</h3>
+                                    <p>We've sent a verification link to your email address. Please check your inbox and click the link to verify your account.</p>
+                                    <button 
+                                        className="resend-button"
+                                        onClick={handleResendVerification}
+                                    >
+                                        Resend Verification Email
+                                    </button>
+                                    <button 
+                                        className="back-to-login"
+                                        onClick={() => {
+                                            setVerificationSent(false);
+                                            setIsLogin(true);
+                                        }}
+                                    >
+                                        Back to Login
+                                    </button>
                                 </div>
-                                <div className="form-group">
-                                    <input
-                                        type="password"
-                                        placeholder="Password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                {error && <div className="error-message">{error}</div>}
-                                <button type="submit" className="auth-button">
-                                    {isLogin ? 'Login' : 'Register'}
-                                </button>
-                            </form>
+                            ) : (
+                                <form onSubmit={isLogin ? handleFirebaseLogin : handleFirebaseRegister}>
+                                    <div className="form-group">
+                                        <input
+                                            type="email"
+                                            placeholder="Email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <input
+                                            type="password"
+                                            placeholder="Password"
+                                            value={password}
+                                            onChange={(e) => {
+                                                setPassword(e.target.value);
+                                                if (!isLogin) {
+                                                    checkPasswordStrength(e.target.value);
+                                                }
+                                            }}
+                                            required
+                                        />
+                                        {!isLogin && password && (
+                                            <div className="password-requirements">
+                                                <div className={`requirement ${passwordCriteria.length ? 'met' : ''}`}>
+                                                    {passwordCriteria.length ? '✓' : '○'} At least 8 characters
+                                                </div>
+                                                <div className={`requirement ${passwordCriteria.uppercase ? 'met' : ''}`}>
+                                                    {passwordCriteria.uppercase ? '✓' : '○'} One uppercase letter
+                                                </div>
+                                                <div className={`requirement ${passwordCriteria.lowercase ? 'met' : ''}`}>
+                                                    {passwordCriteria.lowercase ? '✓' : '○'} One lowercase letter
+                                                </div>
+                                                <div className={`requirement ${passwordCriteria.number ? 'met' : ''}`}>
+                                                    {passwordCriteria.number ? '✓' : '○'} One number
+                                                </div>
+                                                <div className={`requirement ${passwordCriteria.special ? 'met' : ''}`}>
+                                                    {passwordCriteria.special ? '✓' : '○'} One special character
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    {error && <div className="error-message">{error}</div>}
+                                    <button type="submit" className="auth-button">
+                                        {isLogin ? 'Login' : 'Register'}
+                                    </button>
+                                </form>
+                            )}
 
                             {isLogin && (
                                 <button 
