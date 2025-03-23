@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { auth } from '../firebase';
 
 const WorkoutHistory = ({ user }) => {
     const [history, setHistory] = useState([]);
@@ -12,7 +13,11 @@ const WorkoutHistory = ({ user }) => {
         
         setLoading(true);
         try {
+            const token = await auth.currentUser.getIdToken();
             const response = await fetch('http://localhost:5001/user/workout-history', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
                 credentials: 'include'
             });
             const data = await response.json();
@@ -51,8 +56,12 @@ const WorkoutHistory = ({ user }) => {
 
         setClearing(true);
         try {
+            const token = await auth.currentUser.getIdToken();
             const response = await fetch('http://localhost:5001/user/workout-history', {
                 method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
                 credentials: 'include'
             });
             const data = await response.json();

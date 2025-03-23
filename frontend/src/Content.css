@@ -577,4 +577,116 @@ body {
         padding: 2rem;
         margin: 1rem;
     }
+}
+
+/* AI Assistant Styling */
+.ai-assistant-wrapper {
+    margin: 20px 0;
+    width: 100%;
+}
+
+.toggle-ai-assistant {
+    background-color: #6c5ce7;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.toggle-ai-assistant:hover {
+    background-color: #5541d8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-ai-assistant:before {
+    content: "🤖";
+    margin-right: 8px;
+    font-size: 18px;
+}
+
+.ai-assistant {
+    background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    border: 1px solid #e1e1e1;
+    transition: all 0.3s ease;
+}
+
+.ai-assistant h3 {
+    color: #6c5ce7;
+    margin-top: 0;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+}
+
+.ai-assistant h3:before {
+    content: "🤖";
+    margin-right: 8px;
+}
+
+.ai-assistant p {
+    color: #495057;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+}
+
+.ai-input {
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+    resize: none;
+    background-color: white;
+}
+
+.ai-input:focus {
+    border-color: #6c5ce7;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+}
+
+.ai-suggestions {
+    margin-top: 15px;
+}
+
+.ai-suggestions h4 {
+    font-size: 0.85rem;
+    color: #6c5ce7;
+    margin-bottom: 10px;
+}
+
+.suggestion-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.suggestion-chip {
+    background-color: #f1f3f5;
+    border: 1px solid #e9ecef;
+    color: #495057;
+    padding: 8px 12px;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.suggestion-chip:hover {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+    transform: translateY(-2px);
 } 

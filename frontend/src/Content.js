@@ -3,6 +3,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import Auth from './components/Auth'
 import WorkoutHistory from './components/WorkoutHistory'
 import './Content.css'
+import { auth } from './firebase'
 
 const WorkoutCard = ({ workout }) => {
     return (
@@ -28,7 +29,7 @@ const WorkoutCard = ({ workout }) => {
 
 const Content = () => {
     console.log('API URL:', process.env.REACT_APP_API_URL);
-    const [response, handleResponse] = useState([])
+    const [response, setResponse] = useState(null)
     const [user, setUser] = useState(null)
     const [userInput, setUserInput] = useState({
         fitnessLevel: "beginner",
@@ -40,10 +41,29 @@ const Content = () => {
     })
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
+    const [aiCustomization, setAiCustomization] = useState("")
+    const [showAiAssistant, setShowAiAssistant] = useState(false)
+    const [aiSuggestions, setAiSuggestions] = useState([])
 
     useEffect(() => {
         console.log('User state changed:', user);
     }, [user]);
+
+    // AI assistant suggestions
+    const predefinedSuggestions = [
+        "Tailor this workout for swimming performance",
+        "Modify for someone with lower back issues",
+        "Focus more on functional movements",
+        "Add more compound exercises",
+        "Make this plan more cardio-focused",
+        "Adjust for a busy professional with limited time",
+        "Optimize for maximum fat loss"
+    ]
+
+    useEffect(() => {
+        // Set initial suggestions
+        setAiSuggestions(predefinedSuggestions)
+    }, [])
 
     const handleInputChange = (e) => {
         const { name, value } = e.target
@@ -58,36 +78,41 @@ const Content = () => {
         setUser(userData);
     };
 
-    const generateWorkout = () => {
+    const generateWorkout = async () => {
         setLoading(true)
         setError(null)
         
-        const prompt = `I am a ${userInput.fitnessLevel} looking to ${userInput.goal}. 
-            I have access to ${userInput.equipment || 'basic equipment'} and 
-            ${userInput.timeAvailable} minutes available for ${userInput.daysPerWeek} days per week. 
-            Additional preferences: ${userInput.preferences}`
+        try {
+            const token = await auth.currentUser.getIdToken();
+            const prompt = `I am a ${userInput.fitnessLevel} looking to ${userInput.goal}. 
+                I have access to ${userInput.equipment || 'basic equipment'} and 
+                ${userInput.timeAvailable} minutes available for ${userInput.daysPerWeek} days per week. 
+                Additional preferences: ${userInput.preferences}`
 
-        fetch('http://localhost:5001/query', {
-            method: 'POST',
-            headers: { 
-                "Content-Type": "application/json"
-            },
-            credentials: 'include',
-            body: JSON.stringify({ query: prompt })
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Network response was not ok')
-            return response.json()
-        })
-        .then(data => {
-            handleResponse(data.response)
-            setLoading(false)
-        })
-        .catch((error) => {
-            console.error('Error:', error)
-            setError('Failed to generate workout')
-            setLoading(false)
-        })
+            // Add AI customization if present
+            const finalPrompt = aiCustomization 
+                ? `${prompt} And please: ${aiCustomization}`
+                : prompt;
+
+            const response = await fetch('http://localhost:5001/query', {
+                method: 'POST',
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                credentials: 'include',
+                body: JSON.stringify({ query: finalPrompt })
+            });
+
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            setResponse(data.workout_plan);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error:', error);
+            setError('Failed to generate workout');
+            setLoading(false);
+        }
     }
 
     return (
@@ -193,6 +218,46 @@ const Content = () => {
                                     placeholder="Any specific preferences or limitations?"
                                     rows="3"
                                 />
+                            </div>
+
+                            <div className="ai-assistant-wrapper">
+                                <button 
+                                    type="button" 
+                                    className="toggle-ai-assistant"
+                                    onClick={() => setShowAiAssistant(!showAiAssistant)}
+                                >
+                                    {showAiAssistant ? "Hide AI Assistant" : "Show AI Assistant"}
+                                </button>
+                                
+                                {showAiAssistant && (
+                                    <div className="ai-assistant">
+                                        <h3>AI Workout Assistant</h3>
+                                        <p>Further customize your workout with natural language instructions:</p>
+                                        
+                                        <textarea
+                                            className="ai-input"
+                                            value={aiCustomization}
+                                            onChange={(e) => setAiCustomization(e.target.value)}
+                                            placeholder="e.g., Tailor this for a swimmer, focus on functional movements, etc."
+                                            rows="3"
+                                        />
+                                        
+                                        <div className="ai-suggestions">
+                                            <h4>Try these suggestions:</h4>
+                                            <div className="suggestion-chips">
+                                                {aiSuggestions.map((suggestion, index) => (
+                                                    <button 
+                                                        key={index}
+                                                        className="suggestion-chip"
+                                                        onClick={() => setAiCustomization(suggestion)}
+                                                    >
+                                                        {suggestion}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <button
