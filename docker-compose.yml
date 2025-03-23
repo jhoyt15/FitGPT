@@ -4,7 +4,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "5001:5000"
+      - 5001:5000
     env_file:
       - ./backend/.env
     environment:
@@ -16,18 +16,20 @@ services:
     depends_on:
       elasticsearch:
         condition: service_healthy
+    container_name: fitgpt-backend
 
   frontend:
     build: 
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - 3000:3000
     volumes:
       - ./frontend:/app
       - /app/node_modules
     depends_on:
       - backend
+    container_name: fitgpt-frontend
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.9
@@ -40,7 +42,7 @@ services:
       - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
       - http.cors.allow-credentials=true
     ports:
-      - "9200:9200"
+      - 9200:9200
     volumes:
       - esdata:/usr/share/elasticsearch/data
     healthcheck:

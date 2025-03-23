@@ -14,7 +14,7 @@ from data.dataLoader import get_embedding_model
 
 
 load_dotenv()
-ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL","http://localhost:9200")
+ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL","http://elasticsearch:9200")
 ELASTICSEARCH_USER = os.getenv("ELASTICSEARCH_USER","")
 ELASTICSEARCH_PASSWORD = os.getenv("ELASTICSEARCH_PASSWORD","")
 ELASTICSEARCH_API_KEY = os.getenv("ELASTICSEARCH_API_KEY","")
@@ -44,7 +44,7 @@ def prompt_llm(question:str,session_id:int):
         split_days = workout_split["days"]
         for day,muscle_groups in split_days.items():
             for muscle in muscle_groups:
-                documents.extend(doc_store.similarity_search(muscle,k=20))
+                documents.extend(doc_store.similarity_search(muscle,k=2))
     else:
         documents.extend(doc_store.similarity_search(question,k=3))
         

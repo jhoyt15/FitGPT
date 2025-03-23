@@ -574,7 +574,7 @@ def ask_question():
         answer = prompt_llm(query,session_id)  
         return jsonify({"response":answer}), 200
     except Exception as e:
-        return jsonify({"error":e}), 505
+        return jsonify({"error":e}), 500
 
 @app.cli.command()
 def reindex():

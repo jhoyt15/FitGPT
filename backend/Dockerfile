@@ -28,7 +28,7 @@ COPY requirements.txt .
 ENV PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
 
 # Install requirements in smaller groups with explicit ordering to handle dependencies better
-RUN pip install --no-cache-dir Flask==2.0.1 Werkzeug==2.0.3 python-dotenv flask-cors Flask-Login && \
+RUN pip install --no-cache-dir Flask Werkzeug python-dotenv flask-cors Flask-Login && \
     pip install --no-cache-dir elasticsearch==8.17.1 && \
     pip install --no-cache-dir oauthlib requests-oauthlib google-auth google-auth-oauthlib && \
     pip install --no-cache-dir fuzzywuzzy jinja2 python-Levenshtein gunicorn && \
