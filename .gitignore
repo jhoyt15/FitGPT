@@ -173,3 +173,4 @@ cython_debug/
 
 #Certification files
 *.crt
+backend/auth/

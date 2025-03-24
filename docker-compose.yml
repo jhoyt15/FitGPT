@@ -4,7 +4,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - 5001:5000
+      - "5001:5000"
     env_file:
       - ./backend/.env
     environment:
@@ -23,7 +23,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - 3000:3000
+      - "3000:3000"
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -38,11 +38,11 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - xpack.security.enabled=false
       - http.cors.enabled=true
-      - http.cors.allow-origin=*
-      - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
-      - http.cors.allow-credentials=true
+      #- http.cors.allow-origin=*
+      #- http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
+      #- http.cors.allow-credentials=true
     ports:
-      - 9200:9200
+      - "9200:9200"
     volumes:
       - esdata:/usr/share/elasticsearch/data
     healthcheck:

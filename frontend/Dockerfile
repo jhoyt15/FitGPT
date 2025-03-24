@@ -4,7 +4,10 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
+# Install dependencies with legacy peer deps flag to handle React 19
+RUN npm install --legacy-peer-deps
+
+RUN npm install @react-oauth/google
 
 COPY . .
 
