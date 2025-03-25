@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import Auth from './components/Auth'
 import WorkoutHistory from './components/WorkoutHistory'
+import TimeoutWarning from './components/TimeoutWarning'
 import './Content.css'
 import { auth } from './firebase'
 
@@ -44,6 +45,11 @@ const Content = () => {
     const [aiCustomization, setAiCustomization] = useState("")
     const [showAiAssistant, setShowAiAssistant] = useState(false)
     const [aiSuggestions, setAiSuggestions] = useState([])
+    const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
+    const [timeLeft, setTimeLeft] = useState(60); // 60 seconds warning
+    const [lastActivity, setLastActivity] = useState(Date.now());
+    const TIMEOUT_DURATION = 5 * 60 * 1000; // 5 minutes
+    const WARNING_DURATION = 60; // 60 seconds warning
 
     useEffect(() => {
         console.log('User state changed:', user);
@@ -76,6 +82,83 @@ const Content = () => {
     const handleUserLogin = (userData) => {
         console.log('Setting user state:', userData);
         setUser(userData);
+        // Reset timeout warning state and timer
+        setShowTimeoutWarning(false);
+        setTimeLeft(WARNING_DURATION);
+        setLastActivity(Date.now());
+    };
+
+    // Handle user activity
+    const handleUserActivity = () => {
+        if (!showTimeoutWarning) {
+            setLastActivity(Date.now());
+        }
+    };
+
+    // Add event listeners for user activity
+    useEffect(() => {
+        if (!user) return;
+
+        const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'];
+        events.forEach(event => {
+            window.addEventListener(event, handleUserActivity);
+        });
+
+        return () => {
+            events.forEach(event => {
+                window.removeEventListener(event, handleUserActivity);
+            });
+        };
+    }, [user, showTimeoutWarning]);
+
+    // Check for timeout
+    useEffect(() => {
+        if (!user) return;
+
+        const checkTimeout = () => {
+            const timeSinceLastActivity = Date.now() - lastActivity;
+            
+            if (timeSinceLastActivity >= TIMEOUT_DURATION && !showTimeoutWarning) {
+                setShowTimeoutWarning(true);
+                setTimeLeft(WARNING_DURATION);
+            }
+        };
+
+        const interval = setInterval(checkTimeout, 1000);
+        return () => clearInterval(interval);
+    }, [user, lastActivity, showTimeoutWarning]);
+
+    // Countdown timer for warning
+    useEffect(() => {
+        if (!showTimeoutWarning || !user) return;
+
+        const timer = setInterval(() => {
+            setTimeLeft(prev => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    handleLogout();
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [showTimeoutWarning, user]);
+
+    const handleStayLoggedIn = () => {
+        setShowTimeoutWarning(false);
+        setLastActivity(Date.now());
+        setTimeLeft(WARNING_DURATION);
+    };
+
+    const handleLogout = async () => {
+        try {
+            await auth.signOut();
+            setUser(null);
+        } catch (error) {
+            console.error('Error logging out:', error);
+        }
     };
 
     const generateWorkout = async () => {
@@ -323,6 +406,14 @@ const Content = () => {
                         )}
 
                         {user && <WorkoutHistory user={user} />}
+
+                        {showTimeoutWarning && (
+                            <TimeoutWarning
+                                onStay={handleStayLoggedIn}
+                                onLogout={handleLogout}
+                                timeLeft={timeLeft}
+                            />
+                        )}
                     </div>
                 )}
             </main>
