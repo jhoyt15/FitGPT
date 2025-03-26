@@ -17,12 +17,7 @@ ELASTICSEARCH_API_KEY = os.getenv("ELASTICSEARCH_API_KEY")
 
 es_connection = Elasticsearch("http://elasticsearch:9200",verify_certs=False)
 
-es_connection = Elasticsearch(
-    ELASTICSEARCH_URL,
-    basic_auth=(ELASTICSEARCH_USER, ELASTICSEARCH_PASSWORD) if ELASTICSEARCH_USER and ELASTICSEARCH_PASSWORD else None,
-    api_key=ELASTICSEARCH_API_KEY,
-    ca_certs='cert.crt' if os.path.exists('cert.crt') else None
-)
+es_connection = Elasticsearch(ELASTICSEARCH_URL,verify_certs=False)
 
 def make_json(data_path: str, json_path: str) -> None:
     # Create a dictionary
@@ -44,13 +39,11 @@ def make_json(data_path: str, json_path: str) -> None:
 def make_index():
     es = Elasticsearch(
         ELASTICSEARCH_URL,
-        basic_auth=(ELASTICSEARCH_USER, ELASTICSEARCH_PASSWORD) if ELASTICSEARCH_USER and ELASTICSEARCH_PASSWORD else None,
-        api_key=ELASTICSEARCH_API_KEY,
-        ca_certs='cert.crt' if os.path.exists('cert.crt') else None
+        verify_certs=False
     )
     
     # Define mapping for workout data
-    mapping = {
+    workouts_mapping = {
         "mappings": {
             "properties": {
                 "Title": {"type": "text"},
@@ -63,13 +56,33 @@ def make_index():
         }
     }
     
-    # Create the index with mapping
+    # Define mapping for workout history
+    history_mapping = {
+        "mappings": {
+            "properties": {
+                "user_id": {"type": "keyword"},
+                "workout_plan": {"type": "object"},
+                "timestamp": {"type": "date"},
+                "query": {"type": "text"}
+            }
+        }
+    }
+    
+    # Create the workouts index with mapping
     try:
         es.indices.delete(index='workouts', ignore_unavailable=True)
     except Exception as e:
-        print(f"Error deleting index: {str(e)}")
+        print(f"Error deleting workouts index: {str(e)}")
     
-    es.indices.create(index='workouts', body=mapping)
+    es.indices.create(index='workouts', body=workouts_mapping)
+    
+    # Create the workout_history index with mapping
+    try:
+        es.indices.delete(index='workout_history', ignore_unavailable=True)
+    except Exception as e:
+        print(f"Error deleting workout_history index: {str(e)}")
+    
+    es.indices.create(index='workout_history', body=history_mapping)
     
     # Load workout data from JSON file
     try:
@@ -95,9 +108,11 @@ def make_index():
                 }
                 es.index(index='workouts', document=formatted_workout)
         
-        # Refresh the index
+        # Refresh the indices
         es.indices.refresh(index='workouts')
+        es.indices.refresh(index='workout_history')
         print(f"Successfully indexed {len(workouts)} workouts")
+        print(f"Successfully created workout_history index")
         
     except Exception as e:
         print(f"Error loading workouts: {str(e)}")
@@ -125,9 +140,11 @@ def make_index():
         for workout in workouts:
             es.index(index='workouts', document=workout)
         
-        # Refresh the index
+        # Refresh the indices
         es.indices.refresh(index='workouts')
+        es.indices.refresh(index='workout_history')
         print("Indexed sample workouts as fallback")
+        print("Created workout_history index")
 
 def get_embedding_model():
     '''Initalizes the HuggingFace embedding model'''
