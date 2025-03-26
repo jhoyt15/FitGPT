@@ -1,9 +1,5 @@
 import os
 import sys
-<<<<<<< HEAD
-=======
-from flask import stream_template_string
->>>>>>> 54da162c5a0fc308e9375bbfe9dc3432049ed872
 from dotenv import load_dotenv
 from elasticsearch import Elasticsearch
 from langchain_elasticsearch import ElasticsearchStore
@@ -48,11 +44,7 @@ def prompt_llm(question:str,session_id:int):
         split_days = workout_split["days"]
         for day,muscle_groups in split_days.items():
             for muscle in muscle_groups:
-<<<<<<< HEAD
                 documents.extend(doc_store.similarity_search(muscle,k=20))
-=======
-                documents.extend(doc_store.similarity_search(muscle,k=2))
->>>>>>> 54da162c5a0fc308e9375bbfe9dc3432049ed872
     else:
         documents.extend(doc_store.similarity_search(question,k=3))
         
