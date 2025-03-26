@@ -34,15 +34,15 @@ services:
     container_name: fitgpt-frontend
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.9
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.1
     environment:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - xpack.security.enabled=false
       - http.cors.enabled=true
-      - http.cors.allow-origin=*
-      - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
-      - http.cors.allow-credentials=true
+      #- http.cors.allow-origin=*
+      #- http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
+      #- http.cors.allow-credentials=true
     ports:
       - "9200:9200"
     volumes:

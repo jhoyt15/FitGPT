@@ -2,6 +2,8 @@ FROM node:16
 
 WORKDIR /app
 
+RUN npm install firebase
+
 COPY package*.json ./
 
 RUN npm install
