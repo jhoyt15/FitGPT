@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
+from dotenv import load_dotenv
 from elasticsearch import Elasticsearch
 from data.dataLoader import make_index
 import firebase_admin
@@ -8,8 +9,18 @@ from firebase_admin import credentials, auth
 from src.workout_generator import generate_workout_plan
 from src.workout_history import get_workout_history, save_workout_history, clear_workout_history
 
+# Load environment variables from .env file
+load_dotenv()
+
 # Initialize Firebase Admin
-cred = credentials.Certificate('fitgpt-32ad7-firebase-adminsdk-fbsvc-0557ed928e.json')
+FIREBASE_CRED_PATH = os.getenv('FIREBASE_CRED_PATH')
+if not FIREBASE_CRED_PATH:
+    raise ValueError("FIREBASE_CRED_PATH environment variable is not set. Please set it to your Firebase service account JSON file path.")
+
+if not os.path.exists(FIREBASE_CRED_PATH):
+    raise FileNotFoundError(f"Firebase credentials file not found at {FIREBASE_CRED_PATH}. Please ensure the file exists and the path is correct.")
+
+cred = credentials.Certificate(FIREBASE_CRED_PATH)
 firebase_admin.initialize_app(cred)
 
 ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL")
