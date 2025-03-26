@@ -173,3 +173,6 @@ cython_debug/
 
 #Certification files
 *.crt
+backend/*firebase*adminsdk*.json
+backend/firebase*.json
+*-firebase-adminsdk-*.json
