@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 Use the following documents and workouts to generate your answer to the question. Try not to repeat workouts when recommending. Only provide the name of the workout. Try to have 4-6 workouts for each day picking a wide range of muscle groups.
+=======
+Use the following documents and workouts to generate your answer to the question. Try not to repeat workouts when recommending. Only provide the name of the workout.
+>>>>>>> 54da162c5a0fc308e9375bbfe9dc3432049ed872
 
 Here is the chat history as a reference
 ----

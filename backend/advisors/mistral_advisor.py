@@ -1,4 +1,8 @@
 from mistralai.client import MistralClient
+<<<<<<< HEAD
+=======
+from mistralai.models.chat_completion import ChatMessage
+>>>>>>> 54da162c5a0fc308e9375bbfe9dc3432049ed872
 import os
 
 class MistralWorkoutAdvisor:
@@ -8,6 +12,7 @@ class MistralWorkoutAdvisor:
         
     def generate_advice(self, workout_data, research_findings):
         messages = [
+<<<<<<< HEAD
             {
                 "role": "system",
                 "content": "You are a knowledgeable fitness coach. Provide evidence-based workout advice in a friendly manner. Keep responses concise and actionable."
@@ -20,6 +25,20 @@ class MistralWorkoutAdvisor:
         
         try:
             response = self.client.chat.complete(
+=======
+            ChatMessage(
+                role="system",
+                content="You are a knowledgeable fitness coach. Provide evidence-based workout advice in a friendly manner. Keep responses concise and actionable."
+            ),
+            ChatMessage(
+                role="user",
+                content=self._create_prompt(workout_data, research_findings)
+            )
+        ]
+        
+        try:
+            response = self.client.chat(
+>>>>>>> 54da162c5a0fc308e9375bbfe9dc3432049ed872
                 model="mistral-tiny",
                 messages=messages,
                 temperature=0.7,
