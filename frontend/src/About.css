@@ -1,0 +1,137 @@
+.about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: 'Inter', sans-serif;
+    color: #333;
+  }
+  
+  .about-hero {
+    text-align: center;
+    padding: 4rem 0;
+    background: linear-gradient(45deg, #3f51b5, #5c6bc0);
+    color: white;
+    border-radius: 16px;
+    margin-bottom: 2rem;
+  }
+  
+  .about-hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .about-hero p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+  }
+  
+  .about-section {
+    margin-bottom: 3rem;
+  }
+  
+  .about-section h2 {
+    font-size: 2rem;
+    color: #1a237e;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  .about-section p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  .audience-cards {
+    display: flex;
+    justify-content: space-around;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  
+  .card {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    flex: 1;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  }
+  
+  .card h3 {
+    font-size: 1.5rem;
+    color: #1a237e;
+    margin-bottom: 1rem;
+  }
+  
+  .card p {
+    font-size: 1rem;
+    color: #555;
+  }
+  
+  .how-it-works-list {
+    list-style: none;
+    padding: 0;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .how-it-works-list li {
+    background: #f8f9fa;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+  }
+  
+  .how-it-works-list li::before {
+    content: '✔️';
+    margin-right: 1rem;
+    color: #3f51b5;
+  }
+  
+  .call-to-action {
+    text-align: center;
+    padding: 3rem 0;
+    background: #f5f7fa;
+    border-radius: 16px;
+  }
+  
+  .cta-button {
+    background: linear-gradient(45deg, #3f51b5, #5c6bc0);
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .cta-button:hover {
+    background: linear-gradient(45deg, #303f9f, #3f51b5);
+    transform: translateY(-2px);
+  }
+  
+  @media (max-width: 768px) {
+    .audience-cards {
+      flex-direction: column;
+    }
+  
+    .card {
+      margin-bottom: 1.5rem;
+    }
+  }
