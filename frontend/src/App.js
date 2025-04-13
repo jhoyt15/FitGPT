@@ -18,6 +18,8 @@ function App() {
         return <Home />;
       case 'generate':
         return <Content />;
+      case 'chat':
+        return <Chat/>;
       case 'about':
         return <About />;
       case 'contact':

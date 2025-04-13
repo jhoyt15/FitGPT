@@ -20,6 +20,12 @@ const Header = ({ setCurrentSection }) => {
         >
           Generate Workout
         </button>
+        <button  
+          className="nav-button" 
+          onClick={() => setCurrentSection('chat')}
+        >
+          Chat
+        </button>
         <button 
           className="nav-button" 
           onClick={() => setCurrentSection('about')}

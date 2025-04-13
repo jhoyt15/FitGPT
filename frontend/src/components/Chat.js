@@ -23,20 +23,23 @@ const Chat = () => {
     }
 
     return (
-        <div className="form-group">
-            <input type = "search" value = {query} onChange ={(e) => setQuery(e.target.value)} onKeyDown={(e) => {
-                if(e.key === "Enter") {
-                    handleLoading()
-                    answerQuestion()
+        <div>
+            <h1>Ask Me Anything</h1>
+            <div className="form-group">
+                <input type = "search" value = {query} onChange ={(e) => setQuery(e.target.value)} onKeyDown={(e) => {
+                    if(e.key === "Enter") {
+                        handleLoading()
+                        answerQuestion()
+                    }
+                }}>
+                </input>
+                { loading ? <p> Thinking... </p> : (
+                    <p>
+                    {answer}
+                    </p>
+                    )
                 }
-            }}>
-            </input>
-            { loading ? <p> Thinking... </p> : (
-                <p>
-                {answer}
-                </p>
-                )
-            }
+            </div>
         </div>
     )
 }
