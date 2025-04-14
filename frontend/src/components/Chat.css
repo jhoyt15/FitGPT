@@ -1,0 +1,10 @@
+.ai-response {
+    text-align: left;
+    font-family: 'Inter', sans-serif;
+    margin: 1rem;
+}
+
+.query-input {
+    font-family: 'Inter', sans-serif;
+    max-width: 600px;
+}
