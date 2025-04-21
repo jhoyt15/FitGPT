@@ -1,5 +1,6 @@
 import { useState } from "react"
 import '../Content.css'
+import './Chat.css'
 
 
 
@@ -12,6 +13,7 @@ const Chat = () => {
         fetch('/chat',{method:'POST',headers: {"Content-Type": "application/json"},credentials:'include',body:JSON.stringify({query:query,session_id:0})})
         .then(response => response.json())
         .then(data => {
+            console.log(data.response)
             setAnswer(data.response) 
             setLoading(false)
         })
@@ -23,20 +25,23 @@ const Chat = () => {
     }
 
     return (
-        <div className="form-group">
-            <input type = "search" value = {query} onChange ={(e) => setQuery(e.target.value)} onKeyDown={(e) => {
-                if(e.key === "Enter") {
-                    handleLoading()
-                    answerQuestion()
+        <div>
+            <h1>Ask Me Anything</h1>
+            <div className="form-group">
+                <input type = "search" className = "query-input" value = {query} onChange ={(e) => setQuery(e.target.value)} onKeyDown={(e) => {
+                    if(e.key === "Enter") {
+                        handleLoading()
+                        answerQuestion()
+                    }
+                }}>
+                </input>
+                { loading ? <p> Thinking... </p> : (
+                    <pre className="ai-response">
+                    {answer}
+                    </pre>
+                    )
                 }
-            }}>
-            </input>
-            { loading ? <p> Thinking... </p> : (
-                <p>
-                {answer}
-                </p>
-                )
-            }
+            </div>
         </div>
     )
 }

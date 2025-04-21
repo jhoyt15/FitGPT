@@ -9,6 +9,7 @@ from firebase_admin import credentials, auth
 from src.workout_generator import generate_workout_plan
 from src.workout_history import get_workout_history, save_workout_history, clear_workout_history
 from functools import wraps
+from src.chat import prompt_llm
 
 # Load environment variables from .env file
 load_dotenv()
@@ -376,6 +377,21 @@ def query():
     except Exception as e:
         print(f"Error generating workout: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
+    
+@app.route('/chat',methods=["POST"])
+def ask_question():
+    if request.method != "POST":
+        return jsonify({"error":"Method must be post"}), 400
+    data = request.get_json()
+    if not data or "query" not in data or "session_id" not in data:
+        return jsonify({"error":"Invalid request"}), 400
+    try:
+        query = data["query"]
+        session_id = data["session_id"]
+        answer = prompt_llm(query,session_id)  
+        return jsonify({"response":answer}), 200
+    except Exception as e:
+        return jsonify({"error":e}), 500
 
 @app.cli.command()
 def reindex():

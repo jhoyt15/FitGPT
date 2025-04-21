@@ -31,11 +31,11 @@ llm = ChatMistralAI(model_name="mistral-small-latest",api_key=MISTRAL_API_KEY)
 def prompt_llm(question:str,session_id:int):
     '''Prompts the LLM and Elasticsearch with the users question and returns a response'''
     #Get chat history
-    chat_history = get_chat_history('workouts_rag',session_id)
-    if(len(chat_history.messages) > 0):
-        with open("./src/templates/condensed_question.txt") as file:
-            condensed_template = file.read()
-        question = Template(condensed_template).render(chat_history) #Condense chat history down to one question to reduce input size
+    #chat_history = get_chat_history('workouts_rag',session_id)
+    #if(len(chat_history.messages) > 0):
+        #with open("./src/templates/condensed_question.txt") as file:
+            #condensed_template = file.read()
+        #question = Template(condensed_template).render(chat_history) #Condense chat history down to one question to reduce input size
 
 
     documents = []
@@ -55,9 +55,10 @@ def prompt_llm(question:str,session_id:int):
     full_rag_question = template.render(question=question,documents=documents,workout_split=workout_split)
 
     answer = llm.invoke(full_rag_question)
+    print(answer.content)
 
-    chat_history.add_user_message(question)
-    chat_history.add_ai_message(answer)
+    #chat_history.add_user_message(question)
+    #chat_history.add_ai_message(answer)
 
     return answer.content
 
