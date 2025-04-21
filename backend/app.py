@@ -415,3 +415,31 @@ def check():
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000) 
+
+from backend.email_service import send_otp_email
+from backend.otp_utils import generate_otp, save_otp, verify_otp
+
+@app.route('/send-otp', methods=['POST'])
+def send_otp():
+    data = request.json
+    email = data.get('email')
+    if not email:
+        return jsonify({'error': 'Email is required'}), 400
+
+    otp = generate_otp()
+    save_otp(email, otp)
+    try:
+        send_otp_email(email, otp)
+        return jsonify({'message': 'OTP sent successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/verify-otp', methods=['POST'])
+def verify_user_otp():
+    data = request.json
+    email = data.get('email')
+    entered_otp = data.get('otp')
+    if verify_otp(email, entered_otp):
+        return jsonify({'message': 'OTP verified successfully'}), 200
+    else:
+        return jsonify({'error': 'Invalid or expired OTP'}), 401

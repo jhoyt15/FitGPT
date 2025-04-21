@@ -5,11 +5,12 @@
   "proxy": "http://fitgpt-backend:5000",
   "dependencies": {
     "@microsoft/fetch-event-source": "^2.0.1",
-
     "@react-oauth/google": "^0.12.1",
     "cra-template": "1.2.0",
+    "firebase": "^11.6.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-router-dom": "^7.5.1",
     "react-scripts": "^5.0.1"
   },
   "scripts": {

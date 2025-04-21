@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 import Content from './Content';
 import Chat from './components/Chat'
+import Auth from './components/Auth';
 import Header from './Header'
 import Home from './Home'; // Import the Home component
 import About from './About'; // Import the About component
@@ -15,7 +16,7 @@ function App() {
   const renderSection = () => {
     switch (currentSection) {
       case 'home':
-        return <Home />;
+        return <Home setCurrentSection={setCurrentSection} />;
       case 'generate':
         return <Content />;
       case 'chat':
@@ -24,6 +25,8 @@ function App() {
         return <About />;
       case 'contact':
         return <Contact />;
+      case 'login':
+        return <Auth setIsAuthenticated={() => {}} setCurrentSection={setCurrentSection} />;
       default:
         return <Home />;
     }

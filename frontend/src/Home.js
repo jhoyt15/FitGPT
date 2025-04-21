@@ -1,7 +1,7 @@
 import React from 'react';
 import './Home.css';
 
-const Home = () => {
+const Home = ({ setCurrentSection }) => {
   return (
     <div className="home-container">
       {/* Hero Section */}
@@ -10,7 +10,7 @@ const Home = () => {
           <h1>FITGPT</h1>
           <h1>Your AI-Powered Fitness Coach</h1>
           <p>Personalized workouts, feedback and fitness tracking—all in one chat.</p>
-          <button className="cta-button" onClick={() => window.location.href = '/generate'}>
+          <button className="cta-button" onClick={() => setCurrentSection('generate')}>
             Get Your Fitness Plan!
           </button>
         </div>
